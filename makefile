@@ -11,11 +11,11 @@ PACKAGE=trabalho1
 ANTLR=$(LIBRARIES)/antlr-4.5.3-complete.jar
 
 ARG1=corretorAutomatico/CorretorTrabalho1.jar
-ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).laParser"
+ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).CompiladorLa"
 ARG3=gcc
 ARG4=$(TEMP)
 ARG5=casosDeTeste
-ARG6="407933, 408000, 000000, 000000"
+ARG6="408514, 407933, 408000, 386227"
 
 .PHONY: build
 

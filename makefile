@@ -1,17 +1,22 @@
-ARG1=CorretorTrabalho1/CorretorTrabalho1.jar
+ANTLR=lib/antlr-4.5.3-complete.jar
+GRAMMAR=Luazinha
+SRC=src
+OUT=build
+TEMP=temp
+
+ARG1=corretorAutomatico/CorretorTrabalho1.jar
 ARG2="java -jar $(OUT)/laLexer.jar"
 ARG3=gcc
 ARG4=temp
-ARG5=casosDeTesteT1
+ARG5=casosDeTeste
 ARG6="407933, 408000, 000000, 000000"
-ANTLR=lib/antlr-4.5.3-complete.jar
-GRAMMAR=Luazinha
-GRAMMAR_LOCATION=t2-cc1/
-OUT=build
+
 
 .PHONY: build
 
-all: build teste
+default: build
+	@echo
+	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico
 
 teste: teste-sintatico
 
@@ -28,20 +33,20 @@ teste-tudo:
 	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) tudo
 
 build: clean
+	@echo - Build Start -
 	mkdir $(OUT)/src
 	mkdir $(OUT)/out
 	mkdir $(OUT)/cp
-	java -jar $(ANTLR) -o $(OUT) -encoding "UTF-8" -no-listener -no-visitor $(GRAMMAR_LOCATION)$(GRAMMAR).g4
-	mv $(OUT)/$(GRAMMAR_LOCATION)/* -t $(OUT)/src
-	rm $(OUT)/$(GRAMMAR_LOCATION) -r
-	cp $(GRAMMAR_LOCATION)EntradaTabelaDeSimbolos.java \
-		$(GRAMMAR_LOCATION)Mensagens.java \
-		$(GRAMMAR_LOCATION)PilhaDeTabelas.java \
-		$(GRAMMAR_LOCATION)Saida.java \
-		$(GRAMMAR_LOCATION)TabelaDeSimbolos.java \
-		$(GRAMMAR_LOCATION)TestaAnalisadorSemantico.java \
+	java -jar $(ANTLR) -o $(OUT) -encoding "UTF-8" -no-listener -no-visitor $(SRC)/$(GRAMMAR).g4
+	cp \
+		$(SRC)/EntradaTabelaDeSimbolos.java \
+		$(SRC)/Mensagens.java \
+		$(SRC)/PilhaDeTabelas.java \
+		$(SRC)/Saida.java \
+		$(SRC)/TabelaDeSimbolos.java \
+		$(SRC)/TestaAnalisadorSemantico.java \
 		-t $(OUT)/src
-	cp $(GRAMMAR_LOCATION)casosDeTeste -r -t $(OUT)/src
+	cp $(SRC)/casosDeTeste -r -t $(OUT)/src
 	mkdir temp/arg
 	mv $(OUT)/src/* -t temp/arg
 	mkdir $(OUT)/src/trabalho2
@@ -53,8 +58,12 @@ build: clean
 		$(OUT)/src/trabalho2/*.java
 		# -verbose \
 	cp $(OUT)/src/**/*[^.java] $(OUT)/out/trabalho2 -r
-	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico
+	@echo - Build End -
+	@echo
 
 clean:
+	@echo - Clean Start -
 	rm $(OUT)/* -rf
 	-rm $(ARG4)/* -rf
+	@echo - Clean End -
+	@echo

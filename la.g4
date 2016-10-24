@@ -1,291 +1,322 @@
-PROGRAMA 
-  : DECLARACAO* 'algoritmo' CORPO 'fim_algoritmo'
+grammar la;
+
+programa
+  : declaracao* 'algoritmo' corpo 'fim_algoritmo'
   ;
-  
-DECLARACAO 
-  : DECLARACAO_LOCAL 
-  | DECLARACAO_GLOBAL
+
+declaracao
+  : declaracao_local
+  | declaracao_global
   ;
-  
-DECLARACAO_LOCAL 
- : 'declare' VARIAVEL
- | 'constante' IDENT ':' TIPO_BASICO '=' VALOR_CONSTANTE
- | 'tipo' IDENT ':' TIPO
+
+declaracao_local
+ : 'declare' variavel
+ | 'constante' ident ':' tipo_basico '=' valor_constante
+ | 'tipo' ident ':' tipo
  ;
- 
-VARIAVEL 
-  : IDENT DIMENSAO MAIS_VAR* ':' TIPO
+
+variavel
+  : ident dimensao mais_var* ':' tipo
   ;
 
-MAIS_VAR 
-  : SEPARADOR IDENT DIMENSAO
+mais_var
+  : separador ident dimensao
   ;
 
-IDENTIFICADOR 
-  : PONTEIROS_OPCIONAIS? IDENT DIMENSAO OUTROS_IDENT?
+identificador
+  : ponteiros_opcionais? ident dimensao outros_ident?
   ;
 
-PONTEIROS_OPCIONAIS 
-  : '^' PONTEIROS_OPCIONAIS? 
+ponteiros_opcionais
+  : '^' ponteiros_opcionais?
   ;
 
-OUTROS_IDENT 
-  : '.' IDENTIFICADOR
+outros_ident
+  : '.' identificador
   ;
 
-DIMENSAO 
-  : ('[' EXP_ARITMETICA ']')*
+dimensao
+  : ('[' exp_aritmetica ']')*
   ;
 
-TIPO 
-  : REGISTRO 
-  | TIPO_ESTENDIDO
+tipo
+  : registro
+  | tipo_estendido
   ;
 
-MAIS_IDENT 
-  : SEPARADOR IDENTIFICADOR
+mais_ident
+  : separador identificador
   ;
 
-MAIS_VARIAVEIS 
-  : VARIAVEL MAIS_VARIAVEIS?
+mais_variaveis
+  : variavel mais_variaveis?
   ;
 
-TIPO_BASICO 
-  : 'literal' 
-  | 'inteiro' 
-  | 'real' 
+tipo_basico
+  : 'literal'
+  | 'inteiro'
+  | 'real'
   | 'logico'
   ;
 
-TIPO_BASICO_IDENT 
-  : TIPO_BASICO 
-  | IDENT
+tipo_basico_ident
+  : tipo_basico
+  | ident
   ;
 
-TIPO_ESTENDIDO 
-  : PONTEIROS_OPCIONAIS? TIPO_BASICO_IDENT
+tipo_estendido
+  : ponteiros_opcionais? tipo_basico_ident
   ;
 
-VALOR_CONSTANTE 
-  : CADEIA 
-  | NUM_INT 
-  | NUM_REAL 
-  | TRUE
-  | FALSE
+valor_constante
+  : cadeia
+  | num_int
+  | num_real
+  | true
+  | false
   ;
 
-REGISTRO 
-  : 'registro' VARIAVEL MAIS_VARIAVEIS? 'fim_registro'
+registro
+  : 'registro' variavel mais_variaveis? 'fim_registro'
   ;
 
-DECLARACAO_GLOBAL 
-  : 'procedimento' IDENT AP PARAMETRO? FP DECLARACOES_LOCAIS? COMANDOS 'fim_procedimento'
-  | 'funcao' IDENT AP PARAMETRO? FP ':' TIPO_ESTENDIDO DECLARACOES_LOCAIS? COMANDOS 'fim_funcao'
+declaracao_global
+  : 'procedimento' ident ap parametro? fp declaracoes_locais? comandos 'fim_procedimento'
+  | 'funcao' ident ap parametro? fp ':' tipo_estendido declaracoes_locais? comandos 'fim_funcao'
   ;
 
-PARAMETRO 
-  : VAR? IDENTIFICADOR MAIS_IDENT* ':' TIPO_ESTENDIDO MAIS_PARAMETROS?
+parametro
+  : var? identificador mais_ident* ':' tipo_estendido mais_parametros?
   ;
 
-MAIS_PARAMETROS 
-  : SEPARADOR PARAMETRO 
+mais_parametros
+  : separador parametro
   ;
 
-DECLARACOES_LOCAIS 
-  : DECLARACAO_LOCAL DECLARACOES_LOCAIS? 
+declaracoes_locais
+  : declaracao_local declaracoes_locais?
   ;
 
-CORPO 
-  : DECLARACOES_LOCAIS? COMANDOS
+corpo
+  : declaracoes_locais? comandos
   ;
 
-COMANDOS 
-  : CMD+ 
+comandos
+  : cmd+
   ;
 
-CMD 
-  : 'leia' AP IDENTIFICADOR MAIS_IDENT* FP
-  | 'escreva' AP EXPRESSAO MAIS_EXPRESSAO? FP
-  | 'se' EXPRESSAO 'entao' COMANDOS SENAO_OPCIONAL? 'fim_se'
-  | 'caso' EXP_ARITMETICA 'seja' SELECAO SENAO_OPCIONAL? 'fim_caso'
-  | 'para' IDENT '-' <EXP_ARITMETICA 'ate' EXP_ARITMETICA 'faca' COMANDOS 'fim_para'
-  | 'enquanto' EXPRESSAO 'faca' COMANDOS 'fim_enquanto'
-  | 'faca' COMANDOS 'ate' EXPRESSAO
-  | '^' IDENT OUTROS_IDENT? DIMENSAO '-' <EXPRESSAO
-  | IDENT CHAMADA_ATRIBUICAO
-  | 'retorne' EXPRESSAO
-  ;
- 
-MAIS_EXPRESSAO 
-  : SEPARADOR EXPRESSAO MAIS_EXPRESSAO? 
+cmd
+  : 'leia' ap identificador mais_ident* fp
+  | 'escreva' ap expressao mais_expressao? fp
+  | 'se' expressao 'entao' comandos senao_opcional? 'fim_se'
+  | 'caso' exp_aritmetica 'seja' selecao senao_opcional? 'fim_caso'
+  | 'para' ident '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para'
+  | 'enquanto' expressao 'faca' comandos 'fim_enquanto'
+  | 'faca' comandos 'ate' expressao
+  | '^' ident outros_ident? dimensao '<-' expressao
+  | ident chamada_atribuicao
+  | 'retorne' expressao
   ;
 
-SENAO_OPCIONAL 
-  : 'senao' COMANDOS 
+mais_expressao
+  : separador expressao mais_expressao?
   ;
 
-CHAMADA_ATRIBUICAO 
-  : AP ARGUMENTOS_OPCIONAL? FP 
-  | OUTROS_IDENT? DIMENSAO - <EXPRESSAO
+senao_opcional
+  : 'senao' comandos
   ;
 
-ARGUMENTOS_OPCIONAL 
-  : EXPRESSAO MAIS_EXPRESSAO? 
+chamada_atribuicao
+  : ap argumentos_opcional? fp
+  | outros_ident? dimensao '-' expressao
   ;
 
-SELECAO 
-  : CONSTANTES ':' COMANDOS MAIS_SELECAO?
+argumentos_opcional
+  : expressao mais_expressao?
   ;
 
-MAIS_SELECAO 
-  : SELECAO 
+selecao
+  : constantes ':' comandos mais_selecao?
   ;
 
-CONSTANTES 
-  : NUMERO_INTERVALO MAIS_CONSTANTES?
+mais_selecao
+  : selecao
   ;
 
-MAIS_CONSTANTES 
-  : SEPARADOR CONSTANTES 
+constantes
+  : numero_intervalo mais_constantes?
   ;
 
-NUMERO_INTERVALO 
-  : OP_UNARIO? NUM_INT INTERVALO_OPCIONAL?
+mais_constantes
+  : separador constantes
   ;
 
-INTERVALO_OPCIONAL 
-  : '..' OP_UNARIO? NUM_INT 
+numero_intervalo
+  : op_unario? num_int intervalo_opcional?
   ;
 
-EXP_ARITMETICA 
-  : TERMO OUTROS_TERMOS?
+intervalo_opcional
+  : '..' op_unario? num_int
+  ;
+
+exp_aritmetica
+  : termo outros_termos?
   ;
 
 
-TERMO 
-  : FATOR OUTROS_FATORES*
+termo
+  : fator outros_fatores*
   ;
 
-OUTROS_TERMOS 
-  : OP_ADICAO TERMO OUTROS_TERMOS? 
+outros_termos
+  : op_adicao termo outros_termos?
   ;
 
-FATOR 
-  : PARCELA OUTRAS_PARCELAS*
+fator
+  : parcela outras_parcelas*
   ;
 
-OUTROS_FATORES 
-  : OP_MULTIPLICACAO FATOR
+outros_fatores
+  : op_multiplicacao fator
   ;
 
-PARCELA 
-  : OP_UNARIO? PARCELA_UNARIO 
-  | PARCELA_NAO_UNARIO
+parcela
+  : op_unario? parcela_unario
+  | parcela_nao_unario
   ;
 
-PARCELA_UNARIO 
-  : '^' IDENT OUTROS_IDENT? DIMENSAO 
-  | IDENT CHAMADA_PARTES? 
-  | NUM_INT 
-  | NUM_REAL 
-  | AP EXPRESSAO FP
+parcela_unario
+  : '^' ident outros_ident? dimensao
+  | ident chamada_partes?
+  | num_int
+  | num_real
+  | ap expressao fp
   ;
 
-PARCELA_NAO_UNARIO 
-  : '&' IDENT OUTROS_IDENT? DIMENSAO 
-  | CADEIA
+parcela_nao_unario
+  : '&' ident outros_ident? dimensao
+  | cadeia
   ;
 
-OUTRAS_PARCELAS 
-  : '%' PARCELA 
+outras_parcelas
+  : '%' parcela
   ;
 
-CHAMADA_PARTES 
-  : AP EXPRESSAO MAIS_EXPRESSAO? FP
-  | OUTROS_IDENT? DIMENSAO 
+chamada_partes
+  : ap expressao mais_expressao? fp
+  | outros_ident? dimensao
   ;
 
-EXP_RELACIONAL 
-  : EXP_ARITMETICA OP_OPCIONAL?
+exp_relacional
+  : exp_aritmetica op_opcional?
   ;
 
-OP_OPCIONAL 
-  : OP_RELACIONAL EXP_ARITMETICA 
+op_opcional
+  : op_relacional exp_aritmetica
   ;
 
-EXPRESSAO 
-  : TERMO_LOGICO OUTROS_TERMOS_LOGICOS*
+expressao
+  : termo_logico outros_termos_logicos*
   ;
 
-TERMO_LOGICO 
-  : FATOR_LOGICO OUTROS_FATORES_LOGICOS*
+termo_logico
+  : fator_logico outros_fatores_logicos*
   ;
 
-OUTROS_TERMOS_LOGICOS 
-  : 'ou' TERMO_LOGICO
+outros_termos_logicos
+  : 'ou' termo_logico
   ;
 
-OUTROS_FATORES_LOGICOS 
-  : 'e' FATOR_LOGICO 
+outros_fatores_logicos
+  : 'e' fator_logico
   ;
 
-FATOR_LOGICO 
-  : OP_NAO? PARCELA_LOGICA
+fator_logico
+  : op_nao? parcela_logica
   ;
 
-PARCELA_LOGICA 
-  : TRUE
-  | FALSE
-  | EXP_RELACIONAL
+parcela_logica
+  : true
+  | false
+  | exp_relacional
   ;
 
-VAR 
-  : 'var' 
+var
+  : 'var'
   ;
 
-OP_UNARIO 
+op_unario
   : '-'
   ;
-  
-OP_RELACIONAL 
-  : '=' 
-  | '<>' 
-  | '>=' 
-  | '<=' 
-  | '>' 
+
+op_relacional
+  : '='
+  | '<>'
+  | '>='
+  | '<='
+  | '>'
   | '<'
   ;
 
-OP_NAO 
+op_nao
   : 'nao'
   ;
 
-OP_MULTIPLICACAO 
+op_multiplicacao
   : '*'
   | '/'
   ;
 
-OP_ADICAO 
+op_adicao
   : '+'
   | '-'
   ;
-  
-TRUE 
+
+true
   : 'verdadeiro'
-  ;  
-  
-FALSE 
+  ;
+
+false
   : 'falso'
-  ; 
-  
-AP 
+  ;
+
+ap
   : '('
   ;
 
-FP 
+fp
   : ')'
   ;
 
-SEPARADOR 
+separador
   : ','
+  ;
+
+ident
+  : nao_digito ( nao_digito | digito )*
+  ;
+
+num_int
+  : digito+
+  ;
+
+num_real
+  : digito+ '.' digito+
+  ;
+
+cadeia
+  : '"' ~["\\\r\n]* '"'
+  ;
+
+nao_digito
+  : [a-zA-z_]
+  ;
+
+digito
+  : [0-9]
+  ;
+
+COMENTARIO
+  : '{' ~[}]* '}'
+    -> skip
   ;

@@ -14,7 +14,7 @@ Um terminal que consiga rodar make
 $ make build
 ```
 
-## Executando
+## Testando
 ```bash
-$ make run
+$ make teste
 ```

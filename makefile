@@ -19,9 +19,9 @@ ARG6="407933, 408000, 000000, 000000"
 
 .PHONY: build
 
-default: build teste
+default: build test
 
-teste: teste-sintatico
+test: teste-sintatico
 
 teste-sintatico:
 	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) sintatico

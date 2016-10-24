@@ -1,20 +1,25 @@
-ANTLR=lib/antlr-4.5.3-complete.jar
-GRAMMAR=Luazinha
-SRC=src
-OUT=build
-TEMP=temp
+BASE_DIR=$(shell pwd)
+SRC=$(BASE_DIR)/src
+BUILD=$(BASE_DIR)/build
+DIST=$(BASE_DIR)/dist
+TEMP=$(BASE_DIR)/temp
+LIBRARIES=$(BASE_DIR)/libs
+
+GRAMMAR=la
+PACKAGE=trabalho1
+
+ANTLR=$(LIBRARIES)/antlr-4.5.3-complete.jar
 
 ARG1=corretorAutomatico/CorretorTrabalho1.jar
-ARG2="java -jar $(OUT)/laLexer.jar"
+ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).laParser"
 ARG3=gcc
-ARG4=temp
+ARG4=$(TEMP)
 ARG5=casosDeTeste
 ARG6="407933, 408000, 000000, 000000"
 
-
 .PHONY: build
 
-default: build run
+default: build teste
 
 teste: teste-sintatico
 
@@ -32,40 +37,28 @@ teste-tudo:
 
 build: clean
 	@echo - Build Start -
-	mkdir $(OUT)/src
-	mkdir $(OUT)/out
-	mkdir $(OUT)/cp
-	java -jar $(ANTLR) -o $(OUT) -encoding "UTF-8" -no-listener -no-visitor $(SRC)/$(GRAMMAR).g4
-	cp \
-		$(SRC)/EntradaTabelaDeSimbolos.java \
-		$(SRC)/Mensagens.java \
-		$(SRC)/PilhaDeTabelas.java \
-		$(SRC)/Saida.java \
-		$(SRC)/TabelaDeSimbolos.java \
-		$(SRC)/TestaAnalisadorSemantico.java \
-		-t $(OUT)/src
-	cp $(SRC)/casosDeTeste -r -t $(OUT)/src
-	mkdir temp/arg
-	mv $(OUT)/src/* -t temp/arg
-	mkdir $(OUT)/src/trabalho2
-	mv temp/arg/* $(OUT)/src/trabalho2
+	cd $(SRC); \
+		java \
+			-jar $(ANTLR) \
+			-o $(BUILD)/$(PACKAGE) \
+			-encoding "UTF-8" \
+			-no-listener \
+			-no-visitor \
+			$(SRC)/$(PACKAGE)/$(GRAMMAR).g4
+	cd $(SRC); cp --parents \
+		**/*.java \
+		-t $(BUILD)
 	javac \
-		-d $(OUT)/out \
+		-d $(DIST) \
 		-cp $(ANTLR) \
-		-sourcepath $(OUT)/src \
-		$(OUT)/src/trabalho2/*.java
-		# -verbose \
-	cp $(OUT)/src/**/*[^.java] $(OUT)/out/trabalho2 -r
+		-sourcepath $(BUILD)/src \
+		$(BUILD)/**/*.java
 	@echo - Build End -
 	@echo
 
 clean:
 	@echo - Clean Start -
-	rm $(OUT)/* -rf
-	-rm $(ARG4)/* -rf
+	rm $(BUILD)/* -rf
+	-rm $(TEMP)/* -rf
 	@echo - Clean End -
 	@echo
-
-run:
-	@echo
-	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico

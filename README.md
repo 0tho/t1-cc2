@@ -1,10 +1,10 @@
 # Trabalho 1 - Compiladores 2
 
 ## Integrantes
-* 000000 - João Gabriel Esteves
+* 408514 - João Gabriel Esteves
 * 407933 - Marcelo Lopes Lotufo
 * 408000 - Matheus Antonio Ribeiro Silva
-* 000000 - Régis Zangirolami
+* 386227 - Régis Zangirolami
 
 ## Dependências
 Um terminal que consiga rodar make

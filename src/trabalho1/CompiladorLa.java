@@ -40,7 +40,7 @@ public class CompiladorLa {
       laParser parser = new laParser(tokens);
       parser.programa();
 
-      printWriter.println("Funciona");
-      printWriter.close(); 
+      printWriter.println(Saida.getTexto());
+      printWriter.close();
     }
 }

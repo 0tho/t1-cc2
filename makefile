@@ -14,9 +14,7 @@ ARG6="407933, 408000, 000000, 000000"
 
 .PHONY: build
 
-default: build
-	@echo
-	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico
+default: build run
 
 teste: teste-sintatico
 
@@ -67,3 +65,7 @@ clean:
 	-rm $(ARG4)/* -rf
 	@echo - Clean End -
 	@echo
+
+run:
+	@echo
+	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico

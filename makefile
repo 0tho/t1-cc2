@@ -4,7 +4,7 @@ ARG3=gcc
 ARG4=temp
 ARG5=casosDeTesteT1
 ARG6="407933, 408000, 000000, 000000"
-ANTLR=antlr-4.5.3-complete.jar
+ANTLR=lib/antlr-4.5.3-complete.jar
 GRAMMAR=Luazinha
 GRAMMAR_LOCATION=t2-cc1/
 OUT=build
@@ -53,7 +53,7 @@ build: clean
 		$(OUT)/src/trabalho2/*.java
 		# -verbose \
 	cp $(OUT)/src/**/*[^.java] $(OUT)/out/trabalho2 -r
-	java -cp antlr-4.5.3-complete.jar:build/out/ trabalho2.TestaAnalisadorSemantico 
+	java -cp $(ANTLR):build/out/ trabalho2.TestaAnalisadorSemantico
 
 clean:
 	rm $(OUT)/* -rf

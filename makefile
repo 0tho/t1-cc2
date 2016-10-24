@@ -16,26 +16,20 @@ ARG3=gcc
 ARG4=$(TEMP)
 ARG5=casosDeTeste
 ARG6="408514, 407933, 408000, 386227"
+# sintatico, semantico, gerador, tudo
+ARG7=sintatico
 
 .PHONY: build
 
 default: build test
 
-test: teste-sintatico
-
-teste-sintatico:
-	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) sintatico
-
-teste-semantico:
-	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) semantico
-
-teste-gerador:
-	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) gerador
-
-teste-tudo:
-	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) tudo
+test:
+	mkdir -p $(TEMP)
+	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) $(ARG7)
 
 build: clean
+	mkdir -p $(BUILD)
+	mkdir -p $(DIST)
 	@echo - Build Start -
 	cd $(SRC); \
 		java \
@@ -59,6 +53,7 @@ build: clean
 clean:
 	@echo - Clean Start -
 	rm $(BUILD)/* -rf
-	-rm $(TEMP)/* -rf
+	rm $(TEMP)/* -rf
+	rm $(DIST)/* -rf
 	@echo - Clean End -
 	@echo

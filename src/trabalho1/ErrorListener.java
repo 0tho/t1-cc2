@@ -30,6 +30,7 @@ public class ErrorListener extends BaseErrorListener {
           Saida.println( "Linha "+line+": " + caracter + " - simbolo nao identificado" );
         }
 
+        CompiladorLa.shouldGenCode = false;
         throw new ParseCancellationException();
     }
 }

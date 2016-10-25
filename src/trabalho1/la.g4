@@ -358,12 +358,12 @@ NUM_REAL
   ;
 
 CADEIA
-  : '"' ~["\\\r\n]*? '"'
+  : '"' ~["\r\n]*? '"'
   ;
 
 fragment
 NAO_DIGITO
-  : [a-zA-z_]
+  : [a-zA-Z_]
   ;
 
 fragment

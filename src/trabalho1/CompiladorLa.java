@@ -16,6 +16,8 @@ import org.antlr.v4.runtime.BailErrorStrategy;
 
 public class CompiladorLa {
 
+    public static boolean shouldGenCode = true;
+
     public static void main(String[] args) throws Exception {
       String arquivoDeEntrada = null;
       String arquivoDeSaida = null;
@@ -53,7 +55,11 @@ public class CompiladorLa {
         // e.printStackTrace(printWriter);
       }
 
-      Saida.println("Fim da compilacao");
+      if( !shouldGenCode ) {
+        Saida.println("Fim da compilacao");
+      } else {
+        
+      }
       printWriter.print(Saida.getTexto());
       printWriter.close();
     }

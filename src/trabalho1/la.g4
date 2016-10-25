@@ -39,32 +39,64 @@ decl_local_global
 
 declaracao_local
   : 'declare' variavel
-  {}
   | 'constante' IDENT ':' tipo_basico '=' valor_constante
-  {}
+  {
+    pilhaDeTabelas.topo().adicionarSimbolo($IDENT.text, $tipo_basico.text, false, true);
+  }
   | 'tipo' IDENT ':' tipo
-  {}
+  {
+    tipos.adicionarTipo($IDENT.text);
+  }
   ;
 
-variavel returns [ List<String> nomes ]
+variavel
 @init { $nomes = new ArrayList<String>(); }
   : IDENT dimensao
-    //{ $nomes.add($IDENT.getText()); }
+    { $nomes.add($IDENT.getText()); }
     mais_var
-    /*{
+    {
       for(String nome : $mais_var.nomes) {
         $nomes.add(nome);
       }
-    }*/
+    }
     ':' tipo
+    {
+      if ( $tipo.isRegistro ) {
+        tipos.adicionarTipo($tipo.text);
+      }
+      if ( tipos.existeTipo($tipo.text) ) {
+        pilhaDeTabelas.topo().adicionarSimbolos($nomes, $tipo.text, false, false);
+      } else {
+        // Erro: Tipo não identificado
+        Mensagens.erroTipoNaoDeclarada( $IDENT.line, $tipo.text);
+      }
+    }
   ;
 
 mais_var returns [ List<String> nomes ]
 @init { $nomes = new ArrayList<String>(); }
   : (',' IDENT
-  //{ $nomes.add($IDENT.getText()); }
+  { $nomes.add($IDENT.getText()); }
   dimensao )+
   | // ε
+  ;
+
+lista_identificador
+@init { $nomes = new ArrayList<String>(); }
+  : identificador mais_ident
+  {
+    $nomes.add(identificador.text);
+
+    for(String nome : $mais_ident.nomes) {
+      $nomes.add(nome);
+    }
+
+    for(String nome : $nomes ) {
+      if( !pilhaDeTabelas.topo().existeSimbolo(nome) ) {
+        Mensagens.erroVariavelNaoDeclarada($identificador.line, nome);
+      }
+    }
+  }
   ;
 
 identificador
@@ -86,13 +118,14 @@ dimensao
   | // ε
   ;
 
-tipo
-  : registro
-  | tipo_estendido
+tipo returns [boolean isRegistro]
+  : registro { $isRegistro = true; }
+  | tipo_estendido { $isRegistro = false; }
   ;
 
-mais_ident
-  : ',' identificador mais_ident
+mais_ident returns [ List<String> nomes ]
+@init { $nomes = new ArrayList<String>(); }
+  : (',' identificador { $nomes.add($identificador.getText()); } )+
   | // ε
   ;
 
@@ -140,7 +173,7 @@ parametros_opcional
   ;
 
 parametro
-  : var_opcional identificador mais_ident ':' tipo_estendido mais_parametros
+  : var_opcional lista_identificador ':' tipo_estendido mais_parametros
   ;
 
 var_opcional
@@ -168,7 +201,7 @@ comandos
   ;
 
 cmd
-  : 'leia' '(' identificador mais_ident ')'
+  : 'leia' '(' lista_identificador ')'
   | 'escreva' '(' expressao mais_expressao ')'
   | 'se' expressao 'entao' comandos senao_opcional 'fim_se'
   | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso'
@@ -193,6 +226,9 @@ senao_opcional
 chamada_atribuicao
   : '(' argumentos_opcional ')'
   | outros_ident dimensao '<-' expressao
+  {
+
+  }
   ;
 
 argumentos_opcional

@@ -22,6 +22,7 @@ public class TabelaDeTipos {
   }
 
   public boolean existeTipo(String nome) {
+    nome = nome.replace("^", "");
     for(String tipo : tipos) {
       if(tipo.equals(nome)) {
         return true;

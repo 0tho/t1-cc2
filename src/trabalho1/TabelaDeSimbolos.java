@@ -20,13 +20,13 @@ public class TabelaDeSimbolos {
         this.escopo = escopo;
     }
 
-    public void adicionarSimbolo(String nome, String tipo, Boolean isParameter) {
-        simbolos.add(new EntradaTabelaDeSimbolos(nome,tipo, isParameter));
+    public void adicionarSimbolo(String nome, String tipo, Boolean isParameter, Boolean isConstant) {
+        simbolos.add(new EntradaTabelaDeSimbolos(nome,tipo, isParameter, isConstant));
     }
 
-    public void adicionarSimbolos(List<String> nomes, String tipo, Boolean isParameter) {
+    public void adicionarSimbolos(List<String> nomes, String tipo, Boolean isParameter, Boolean isConstant) {
         for(String s:nomes) {
-            simbolos.add(new EntradaTabelaDeSimbolos(s, tipo, isParameter));
+            simbolos.add(new EntradaTabelaDeSimbolos(s, tipo, isParameter, isConstant));
         }
     }
 

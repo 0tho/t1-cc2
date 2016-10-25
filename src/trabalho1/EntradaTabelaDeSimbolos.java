@@ -10,12 +10,13 @@ package trabalho1;
  */
 public class EntradaTabelaDeSimbolos {
   private String nome, tipo;
-  private Boolean isParameter;
+  private Boolean isParameter, isConstant;
 
-  public EntradaTabelaDeSimbolos(String nome, String tipo, Boolean isParameter) {
+  public EntradaTabelaDeSimbolos(String nome, String tipo, Boolean isParameter, Boolean isConstant) {
     this.nome = nome;
     this.tipo = tipo;
     this.isParameter = isParameter;
+    this.isConstant = isConstant;
   }
 
   public String getNome() {
@@ -28,6 +29,10 @@ public class EntradaTabelaDeSimbolos {
 
   public Boolean isParameter() {
     return isParameter;
+  }
+
+  public Boolean isConstant() {
+    return isConstant;
   }
 
   @Override

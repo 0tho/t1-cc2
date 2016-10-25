@@ -10,11 +10,18 @@ package trabalho1;
  */
 public class Mensagens {
 
-  public static void erroVariavelNaoExiste(int numLinha, int numColuna, String variavel) {
-    Saida.println(numLinha+","+(numColuna+1)+":Variavel "+variavel+" nao amarrada");
+  public static void erroVariavelNaoDeclarada(int linha, String token) {
+    Saida.println( "Linha " + linha + ": identificador "+ token +" nao declarado" );
+    CompiladorLa.shouldGenCode = false;
   }
 
-  public static void erroPertoDe( int numLinha, String token ) {
-    Saida.println( "Linha " + numLinha + ": erro sintatico proximo a " + token );
+  public static void erroPertoDe( int linha, String token ) {
+    Saida.println( "Linha " + linha + ": erro sintatico proximo a " + token );
+    CompiladorLa.shouldGenCode = false;
+  }
+
+  public static void erroTipoNaoDeclarada(int linha, String token) {
+    Saida.println( "Linha " + linha + ": tipo "+ token +" nao declarado" );
+    CompiladorLa.shouldGenCode = false;
   }
 }

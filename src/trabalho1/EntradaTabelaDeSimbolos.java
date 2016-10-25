@@ -9,23 +9,29 @@ package trabalho1;
  * @author daniel
  */
 public class EntradaTabelaDeSimbolos {
-    private String nome, tipo;
+  private String nome, tipo;
+  private Boolean isParameter;
 
-    public EntradaTabelaDeSimbolos(String nome, String tipo) {
-        this.nome = nome;
-        this.tipo = tipo;
-    }
+  public EntradaTabelaDeSimbolos(String nome, String tipo, Boolean isParameter) {
+    this.nome = nome;
+    this.tipo = tipo;
+    this.isParameter = isParameter;
+  }
 
-    public String getNome() {
-        return nome;
-    }
+  public String getNome() {
+    return nome;
+  }
 
-    public String getTipo() {
-        return tipo;
-    }
+  public String getTipo() {
+    return tipo;
+  }
 
-    @Override
-    public String toString() {
-        return nome+"("+tipo+")";
-    }
+  public Boolean isParameter() {
+    return isParameter;
+  }
+
+  @Override
+  public String toString() {
+    return nome+":"+ tipo + " Parametro:" + isParameter;
+  }
 }

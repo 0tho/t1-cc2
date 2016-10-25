@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.StringReader;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.BailErrorStrategy;
 
 public class CompiladorLa {
 
@@ -38,9 +39,22 @@ public class CompiladorLa {
       laLexer lexer = new laLexer(input);
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       laParser parser = new laParser(tokens);
-      parser.programa();
 
-      printWriter.println(Saida.getTexto());
+      lexer.removeErrorListeners();
+      lexer.addErrorListener(ErrorListener.INSTANCE);
+
+      // parser.setErrorHandler(new LaErrorStrategy());
+      parser.removeErrorListeners();
+      parser.addErrorListener(ErrorListener.INSTANCE);
+
+      try {
+        parser.programa();
+      } catch ( Exception e ) {
+        // e.printStackTrace(printWriter);
+      }
+
+      Saida.println("Fim da compilacao");
+      printWriter.print(Saida.getTexto());
       printWriter.close();
     }
 }

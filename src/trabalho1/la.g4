@@ -2,10 +2,29 @@ grammar la;
 
 @header {
 package trabalho1;
+
+import java.util.ArrayList;
+}
+
+
+@members{
+TabelaDeTipos tipos = new TabelaDeTipos();
+ArrayList<String> tiposBasicos = new ArrayList<String>();
+PilhaDeTabelas pilhaDeTabelas = new PilhaDeTabelas();
 }
 
 programa
-  : declaracoes 'algoritmo' corpo 'fim_algoritmo'
+@init {
+  tiposBasicos.add("literal");
+  tiposBasicos.add("inteiro");
+  tiposBasicos.add("real");
+  tiposBasicos.add("logico");
+  tipos.adicionarTipos(tiposBasicos);
+}
+  // Cria escopo global para as variaveis
+  : { pilhaDeTabelas.empilhar(new TabelaDeSimbolos("global")); }
+    declaracoes 'algoritmo' corpo 'fim_algoritmo'
+    { pilhaDeTabelas.desempilhar(); }
   ;
 
 declaracoes
@@ -14,21 +33,37 @@ declaracoes
   ;
 
 decl_local_global
-  : declaracao_local | declaracao_global
+  : declaracao_local
+  | declaracao_global
   ;
 
 declaracao_local
   : 'declare' variavel
+  {}
   | 'constante' IDENT ':' tipo_basico '=' valor_constante
+  {}
   | 'tipo' IDENT ':' tipo
+  {}
   ;
 
-variavel
-  : IDENT dimensao mais_var ':' tipo
+variavel returns [ List<String> nomes ]
+@init { $nomes = new ArrayList<String>(); }
+  : IDENT dimensao
+    //{ $nomes.add($IDENT.getText()); }
+    mais_var
+    /*{
+      for(String nome : $mais_var.nomes) {
+        $nomes.add(nome);
+      }
+    }*/
+    ':' tipo
   ;
 
-mais_var
-  : ',' IDENT dimensao mais_var
+mais_var returns [ List<String> nomes ]
+@init { $nomes = new ArrayList<String>(); }
+  : (',' IDENT
+  //{ $nomes.add($IDENT.getText()); }
+  dimensao )+
   | // ε
   ;
 
@@ -133,8 +168,8 @@ comandos
   ;
 
 cmd
-  : 'leia' ( identificador mais_ident )
-  | 'escreva' ( expressao mais_expressao )
+  : 'leia' '(' identificador mais_ident ')'
+  | 'escreva' '(' expressao mais_expressao ')'
   | 'se' expressao 'entao' comandos senao_opcional 'fim_se'
   | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso'
   | 'para' IDENT '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para'
@@ -326,15 +361,29 @@ CADEIA
   : '"' ~["\\\r\n]*? '"'
   ;
 
+fragment
 NAO_DIGITO
   : [a-zA-z_]
   ;
 
+fragment
 DIGITO
   : [0-9]
   ;
 
 COMENTARIO
-  : '{' ~[}]* '}'
-  -> skip
+  : '{' ~[}]*? '}'
+    -> skip
+  ;
+
+Whitespace
+  : [ \t]+
+    -> skip
+  ;
+
+Newline
+  : (   '\r' '\n'?
+    |   '\n'
+    )
+    -> skip
   ;

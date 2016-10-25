@@ -38,7 +38,6 @@ public class PilhaDeTabelas {
 
     public void desempilhar() {
         TabelaDeSimbolos ret = pilha.pop();
-        Saida.println(ret.toString());
     }
 
     public List getTodasTabelas() {

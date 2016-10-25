@@ -35,7 +35,7 @@ algoritmo
 	{ cálculo da soma }
 	resultado.numerador <- numero1.numerador * numero2.denominador + numero1.denominador * numero2.numerador
 
-	resultado.denominador <- numero1.denominador * numero2.denominador 
+	resultado.denominador <- numero1.denominador * numero2.denominador
 
 	simplifiqueRacional(resultado)
 

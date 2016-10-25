@@ -15,6 +15,11 @@ public class Mensagens {
     CompiladorLa.shouldGenCode = false;
   }
 
+  public static void erroVariavelJaDeclarada(int linha, String token) {
+    Saida.println( "Linha " + linha + ": identificador "+ token +" ja declarado anteriormente" );
+    CompiladorLa.shouldGenCode = false;
+  }
+
   public static void erroPertoDe( int linha, String token ) {
     Saida.println( "Linha " + linha + ": erro sintatico proximo a " + token );
     CompiladorLa.shouldGenCode = false;

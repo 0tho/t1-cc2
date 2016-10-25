@@ -49,13 +49,13 @@ declaracao_local
   }
   ;
 
-variavel
-@init { $nomes = new ArrayList<String>(); }
+variavel returns [ List<Token> nomes ]
+@init { $nomes = new ArrayList<Token>(); }
   : IDENT dimensao
-    { $nomes.add($IDENT.getText()); }
+    { $nomes.add($IDENT); }
     mais_var
     {
-      for(String nome : $mais_var.nomes) {
+      for(Token nome : $mais_var.nomes) {
         $nomes.add(nome);
       }
     }
@@ -65,7 +65,13 @@ variavel
         tipos.adicionarTipo($tipo.text);
       }
       if ( tipos.existeTipo($tipo.text) ) {
-        pilhaDeTabelas.topo().adicionarSimbolos($nomes, $tipo.text, false, false);
+        for( Token nome : $nomes ) {
+          if( pilhaDeTabelas.topo().existeSimbolo(nome.getText()) ) {
+            Mensagens.erroVariavelJaDeclarada(nome.getLine(), nome.getText());
+          } else {
+            pilhaDeTabelas.topo().adicionarSimbolo(nome.getText(), $tipo.text, false, false);
+          }
+        }
       } else {
         // Erro: Tipo não identificado
         Mensagens.erroTipoNaoDeclarada( $IDENT.line, $tipo.text);
@@ -73,19 +79,19 @@ variavel
     }
   ;
 
-mais_var returns [ List<String> nomes ]
-@init { $nomes = new ArrayList<String>(); }
+mais_var returns [ List<Token> nomes ]
+@init { $nomes = new ArrayList<Token>(); }
   : (',' IDENT
-  { $nomes.add($IDENT.getText()); }
+  { $nomes.add($IDENT); }
   dimensao )+
   | // ε
   ;
 
-lista_identificador
+lista_identificador returns [ List<String> nomes ]
 @init { $nomes = new ArrayList<String>(); }
   : identificador mais_ident
   {
-    $nomes.add(identificador.text);
+    $nomes.add($identificador.text);
 
     for(String nome : $mais_ident.nomes) {
       $nomes.add(nome);
@@ -99,8 +105,11 @@ lista_identificador
   }
   ;
 
-identificador
+identificador returns [int line]
   : ponteiros_opcionais IDENT dimensao outros_ident
+  {
+    $line = $IDENT.line;
+  }
   ;
 
 ponteiros_opcionais
@@ -125,7 +134,7 @@ tipo returns [boolean isRegistro]
 
 mais_ident returns [ List<String> nomes ]
 @init { $nomes = new ArrayList<String>(); }
-  : (',' identificador { $nomes.add($identificador.getText()); } )+
+  : (',' identificador { $nomes.add( $identificador.text); } )+
   | // ε
   ;
 

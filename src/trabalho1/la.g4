@@ -425,6 +425,12 @@ COMENTARIO
     -> skip
   ;
 
+COMENTARIO_ERRADO
+  : '{' ~[}]*?
+  // Dar erro de comentario errado
+    -> skip
+  ;
+
 Whitespace
   : [ \t]+
     -> skip

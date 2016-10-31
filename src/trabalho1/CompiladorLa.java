@@ -52,13 +52,13 @@ public class CompiladorLa {
       try {
         parser.programa();
       } catch ( Exception e ) {
-        // e.printStackTrace(printWriter);
+        //e.printStackTrace(printWriter);
       }
 
       if( !shouldGenCode ) {
         Saida.println("Fim da compilacao");
       } else {
-        
+
       }
       printWriter.print(Saida.getTexto());
       printWriter.close();

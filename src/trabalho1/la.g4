@@ -98,6 +98,10 @@ lista_identificador returns [ List<String> nomes ]
     }
 
     for(String nome : $nomes ) {
+      if( nome.contains(".") ) {
+        String[] parse = nome.split("\\.");
+        nome = parse[0];
+      }
       if( !pilhaDeTabelas.topo().existeSimbolo(nome) ) {
         Mensagens.erroVariavelNaoDeclarada($identificador.line, nome);
       }
@@ -182,7 +186,7 @@ parametros_opcional
   ;
 
 parametro
-  : var_opcional lista_identificador ':' tipo_estendido mais_parametros
+  : var_opcional identificador mais_ident ':' tipo_estendido mais_parametros
   ;
 
 var_opcional

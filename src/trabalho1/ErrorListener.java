@@ -21,13 +21,12 @@ public class ErrorListener extends BaseErrorListener {
           text  = token.getText();
           if( text == "<EOF>") text = "EOF";
 
-          Saida.println("Linha "+line+": erro sintatico proximo a "+ text);
+          Mensagens.erroSintaticoProximoA( line, text );
         } else {
           String erro[] = msg.split("'");
           String caracter = Character.toString(erro[1].charAt(0));
 
-          // Saida.println( msg );
-          Saida.println( "Linha "+line+": " + caracter + " - simbolo nao identificado" );
+          Mensagens.erroCaracterNaoIdentificado( line, caracter );
         }
 
         CompiladorLa.shouldGenCode = false;

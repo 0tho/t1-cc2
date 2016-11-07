@@ -10,6 +10,7 @@ package trabalho1;
  */
 public class Mensagens {
 
+
   public static void erroVariavelNaoDeclarada(int linha, String token) {
     Saida.println( "Linha " + linha + ": identificador " + token + " nao declarado" );
     CompiladorLa.shouldGenCode = false;
@@ -33,5 +34,9 @@ public class Mensagens {
 
   public static void erroCaracterNaoIdentificado( int linha, String caracter ) {
     Saida.println( "Linha " + linha + ": " + caracter + " - simbolo nao identificado" );
+  }
+
+  public static void erroComentarioNaoFechado( int linha ) {
+    Saida.println( "Linha " + (linha+1) + ": comentario nao fechado" );
   }
 }

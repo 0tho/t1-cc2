@@ -426,9 +426,7 @@ COMENTARIO
   ;
 
 COMENTARIO_ERRADO
-  : '{' ~[}]*?
-  // Dar erro de comentario errado
-    -> skip
+  : '{' ~[}]*? EOF
   ;
 
 Whitespace

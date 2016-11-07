@@ -52,7 +52,7 @@ public class CompiladorLa {
       try {
         parser.programa();
       } catch ( Exception e ) {
-        //e.printStackTrace(printWriter);
+        // e.printStackTrace(printWriter);
       }
 
       if( !shouldGenCode ) {

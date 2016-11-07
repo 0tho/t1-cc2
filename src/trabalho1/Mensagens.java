@@ -37,7 +37,7 @@ public class Mensagens {
   }
 
   public static void erroIncompatibilidadeDeParametros( int linha, String text ) {
-    Saida.println( "Linha " + linha ": incompatibilidade de parametros na chamada de " + text );
+    Saida.println( "Linha " + linha + ": incompatibilidade de parametros na chamada de " + text );
     CompiladorLa.shouldGenCode = false;
   }
 

@@ -11,6 +11,8 @@ import java.util.ArrayList;
 TabelaDeTipos tipos = new TabelaDeTipos();
 ArrayList<String> tiposBasicos = new ArrayList<String>();
 PilhaDeTabelas pilhaDeTabelas = new PilhaDeTabelas();
+
+boolean isAllowedReturn = false;
 }
 
 programa
@@ -179,7 +181,11 @@ registro
 
 declaracao_global
   : 'procedimento' IDENT '(' parametros_opcional ')' declaracoes_locais comandos 'fim_procedimento'
-  | 'funcao' IDENT '(' parametros_opcional ')' ':' tipo_estendido declaracoes_locais comandos 'fim_funcao'
+  | 'funcao' IDENT '(' parametros_opcional ')' ':' tipo_estendido declaracoes_locais
+    { isAllowedReturn = true;}
+    comandos
+    { isAllowedReturn = false;}
+    'fim_funcao'
   ;
 
 parametros_opcional
@@ -211,7 +217,7 @@ corpo
   ;
 
 comandos
-  : cmd comandos
+  : cmd+
   | // ε
   ;
 
@@ -224,8 +230,14 @@ cmd
   | 'enquanto' expressao 'faca' comandos 'fim_enquanto'
   | 'faca' comandos 'ate' expressao
   | '^' IDENT outros_ident dimensao '<-' expressao
-  | IDENT chamada_atribuicao
-  | 'retorne' expressao
+  | IDENT '(' argumentos_opcional ')'
+  | IDENT outros_ident dimensao '<-' expressao
+  | RETURN expressao
+  {
+    if( !isAllowedReturn ) {
+      Mensagens.erroRetorneEmEscopoIncorreto( $RETURN.getLine() );
+    }
+  }
   ;
 
 mais_expressao
@@ -236,14 +248,6 @@ mais_expressao
 senao_opcional
   : 'senao' comandos
   | // ε
-  ;
-
-chamada_atribuicao
-  : '(' argumentos_opcional ')'
-  | outros_ident dimensao '<-' expressao
-  {
-
-  }
   ;
 
 argumentos_opcional
@@ -401,6 +405,11 @@ parcela_logica
   | exp_relacional
   ;
 
+
+RETURN
+  : 'retorne'
+  ;
+
 IDENT
   : NAO_DIGITO ( NAO_DIGITO | DIGITO )*
   ;
@@ -433,7 +442,7 @@ COMENTARIO
   ;
 
 COMENTARIO_ERRADO
-  : '{' ~[}\n]*
+  : '{' ~[}\n]*?
   ;
 
 Whitespace

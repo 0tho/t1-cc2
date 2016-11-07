@@ -64,17 +64,16 @@ variavel returns [ List<Token> nomes ]
       if ( $tipo.isRegistro ) {
         tipos.adicionarTipo($tipo.text);
       }
-      if ( tipos.existeTipo($tipo.text) ) {
-        for( Token nome : $nomes ) {
-          if( pilhaDeTabelas.topo().existeSimbolo(nome.getText()) ) {
-            Mensagens.erroVariavelJaDeclarada(nome.getLine(), nome.getText());
-          } else {
-            pilhaDeTabelas.topo().adicionarSimbolo(nome.getText(), $tipo.text, false, false);
-          }
-        }
-      } else {
+      if ( !tipos.existeTipo($tipo.text) ) {
         // Erro: Tipo não identificado
         Mensagens.erroTipoNaoDeclarada( $IDENT.line, $tipo.text);
+      }
+      for( Token nome : $nomes ) {
+        if( pilhaDeTabelas.topo().existeSimbolo(nome.getText()) ) {
+          Mensagens.erroVariavelJaDeclarada(nome.getLine(), nome.getText());
+        } else {
+          pilhaDeTabelas.topo().adicionarSimbolo(nome.getText(), $tipo.text, false, false);
+        }
       }
     }
   ;
@@ -100,6 +99,9 @@ lista_identificador returns [ List<String> nomes ]
     for(String nome : $nomes ) {
       if( nome.contains(".") ) {
         String[] parse = nome.split("\\.");
+        nome = parse[0];
+      } else if( nome.contains("[") ) {
+        String[] parse = nome.split("\\[");
         nome = parse[0];
       }
       if( !pilhaDeTabelas.topo().existeSimbolo(nome) ) {
@@ -321,6 +323,11 @@ parcela
 parcela_unario
   : '^' IDENT outros_ident dimensao
   | IDENT chamada_partes
+  {
+    if( !pilhaDeTabelas.topo().existeSimbolo( $IDENT.text ) ) {
+      Mensagens.erroVariavelNaoDeclarada($IDENT.line, $IDENT.text);
+    }
+  }
   | NUM_INT
   | NUM_REAL
   | '(' expressao ')'
@@ -421,12 +428,12 @@ DIGITO
   ;
 
 COMENTARIO
-  : '{' ~[}]*? '}'
+  : '{' ~[}\n]*? '}'
     -> skip
   ;
 
 COMENTARIO_ERRADO
-  : '{' ~[}]*? EOF
+  : '{' ~[}\n]*
   ;
 
 Whitespace

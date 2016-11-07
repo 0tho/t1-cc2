@@ -26,6 +26,21 @@ public class Mensagens {
     CompiladorLa.shouldGenCode = false;
   }
 
+  public static void erroRetorneEmEscopoIncorreto( int linha ) {
+    Saida.println( "Linha " + linha + ": comando retorne nao permitido nesse escopo" );
+    CompiladorLa.shouldGenCode = false;
+  }
+
+  public static void erroAtribuicaoIncompativel( int linha, String text ) {
+    Saida.println( "Linha " + linha + ": atribuicao nao compativel para " + text );
+    CompiladorLa.shouldGenCode = false;
+  }
+
+  public static void erroIncompatibilidadeDeParametros( int linha, String text ) {
+    Saida.println( "Linha " + linha ": incompatibilidade de parametros na chamada de " + text );
+    CompiladorLa.shouldGenCode = false;
+  }
+
   // Sintatico
   public static void erroSintaticoProximoA( int linha, String token ) {
     Saida.println( "Linha " + linha + ": erro sintatico proximo a " + token );

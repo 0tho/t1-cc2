@@ -21,7 +21,7 @@ programa
   tiposBasicos.add("inteiro");
   tiposBasicos.add("real");
   tiposBasicos.add("logico");
-  tipos.adicionarTipos(tiposBasicos);
+  tipos.adicionarTipos(tiposBasicos, true, false);
 }
   // Cria escopo global para as variaveis
   : { pilhaDeTabelas.empilhar(new TabelaDeSimbolos("global")); }

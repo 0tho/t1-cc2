@@ -1,30 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package trabalho1;
 
-/**
- *
- * @author daniel
- */
-public class EntradaTabelaDeSimbolos {
-  private String nome, tipo;
+public class EntradaTabelaDeSimbolos extends Simbolo{
   private Boolean isParameter, isConstant;
 
   public EntradaTabelaDeSimbolos(String nome, String tipo, Boolean isParameter, Boolean isConstant) {
-    this.nome = nome;
-    this.tipo = tipo;
+    super(nome, tipo);
     this.isParameter = isParameter;
     this.isConstant = isConstant;
-  }
-
-  public String getNome() {
-    return nome;
-  }
-
-  public String getTipo() {
-    return tipo;
   }
 
   public Boolean isParameter() {

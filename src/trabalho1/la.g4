@@ -1,32 +1,7 @@
 grammar la;
 
-@header {
-package trabalho1;
-
-import java.util.ArrayList;
-}
-
-
-@members{
-TabelaDeTipos tipos = new TabelaDeTipos();
-ArrayList<String> tiposBasicos = new ArrayList<String>();
-PilhaDeTabelas pilhaDeTabelas = new PilhaDeTabelas();
-
-boolean isAllowedReturn = false;
-}
-
 programa
-@init {
-  tiposBasicos.add("literal");
-  tiposBasicos.add("inteiro");
-  tiposBasicos.add("real");
-  tiposBasicos.add("logico");
-  tipos.adicionarTipos(tiposBasicos, true, false);
-}
-  // Cria escopo global para as variaveis
-  : { pilhaDeTabelas.empilhar(new TabelaDeSimbolos("global")); }
-    declaracoes 'algoritmo' corpo 'fim_algoritmo'
-    { pilhaDeTabelas.desempilhar(); }
+  : declaracoes 'algoritmo' corpo 'fim_algoritmo'
   ;
 
 declaracoes
@@ -42,90 +17,24 @@ decl_local_global
 declaracao_local
   : 'declare' variavel
   | 'constante' IDENT ':' tipo_basico '=' valor_constante
-  {
-    pilhaDeTabelas.topo().adicionarSimbolo($IDENT.text, $tipo_basico.text, false, true);
-  }
   | 'tipo' IDENT ':' tipo
-  {
-    Tipo novoTipo = new Tipo($IDENT.text, false, false);
-    if ($tipo.isRegistro) {
-      for( Simbolo s : $tipo.simbolos ) {
-        novoTipo.addSimbolo( s );
-      }
-    } else {
-
-    }
-    tipos.adicionarTipo( novoTipo );
-  }
   ;
 
-variavel returns [ List<Token> nomes ]
-@init { $nomes = new ArrayList<Token>(); }
-  : IDENT dimensao
-    { $nomes.add($IDENT); }
-    mais_var
-    {
-      for(Token nome : $mais_var.nomes) {
-        $nomes.add(nome);
-      }
-    }
-    ':' tipo
-    {
-      if ( $tipo.isRegistro ) {
-        tipos.adicionarTipo($tipo.text);
-      }
-      if ( !tipos.existeTipo($tipo.text) ) {
-        // Erro: Tipo não identificado
-        Mensagens.erroTipoNaoDeclarada( $IDENT.line, $tipo.text);
-      }
-      for( Token nome : $nomes ) {
-        if( pilhaDeTabelas.topo().existeSimbolo(nome.getText()) ) {
-          Mensagens.erroVariavelJaDeclarada(nome.getLine(), nome.getText());
-        } else {
-          pilhaDeTabelas.topo().adicionarSimbolo(nome.getText(), $tipo.text, false, false);
-        }
-      }
-    }
+variavel
+  : IDENT dimensao mais_var ':' tipo
   ;
 
-mais_var returns [ List<Token> nomes ]
-@init { $nomes = new ArrayList<Token>(); }
-  : (',' IDENT
-  { $nomes.add($IDENT); }
-  dimensao )+
+mais_var
+  : (',' IDENT dimensao )+
   | // ε
   ;
 
-lista_identificador returns [ List<String> nomes ]
-@init { $nomes = new ArrayList<String>(); }
+lista_identificador
   : identificador mais_ident
-  {
-    $nomes.add($identificador.text);
-
-    for(String nome : $mais_ident.nomes) {
-      $nomes.add(nome);
-    }
-
-    for(String nome : $nomes ) {
-      if( nome.contains(".") ) {
-        String[] parse = nome.split("\\.");
-        nome = parse[0];
-      } else if( nome.contains("[") ) {
-        String[] parse = nome.split("\\[");
-        nome = parse[0];
-      }
-      if( !pilhaDeTabelas.topo().existeSimbolo(nome) ) {
-        Mensagens.erroVariavelNaoDeclarada($identificador.line, nome);
-      }
-    }
-  }
   ;
 
-identificador returns [int line]
+identificador
   : ponteiros_opcionais IDENT dimensao outros_ident
-  {
-    $line = $IDENT.line;
-  }
   ;
 
 ponteiros_opcionais
@@ -143,14 +52,13 @@ dimensao
   | // ε
   ;
 
-tipo returns [boolean isRegistro, List<Simbolo> simbolos]
-  : registro { $isRegistro = true; $simbolos = $registro.simbolos}
-  | tipo_estendido { $isRegistro = false; }
+tipo
+  : registro
+  | tipo_estendido
   ;
 
-mais_ident returns [ List<String> nomes ]
-@init { $nomes = new ArrayList<String>(); }
-  : (',' identificador { $nomes.add( $identificador.text); } )+
+mais_ident
+  : (',' identificador )+
   | // ε
   ;
 
@@ -184,11 +92,7 @@ registro
 
 declaracao_global
   : 'procedimento' IDENT '(' parametros_opcional ')' declaracoes_locais comandos 'fim_procedimento'
-  | 'funcao' IDENT '(' parametros_opcional ')' ':' tipo_estendido declaracoes_locais
-    { isAllowedReturn = true;}
-    comandos
-    { isAllowedReturn = false;}
-    'fim_funcao'
+  | 'funcao' IDENT '(' parametros_opcional ')' ':' tipo_estendido declaracoes_locais comandos 'fim_funcao'
   ;
 
 parametros_opcional
@@ -236,11 +140,6 @@ cmd
   | IDENT '(' argumentos_opcional ')'
   | IDENT outros_ident dimensao '<-' expressao
   | RETURN expressao
-  {
-    if( !isAllowedReturn ) {
-      Mensagens.erroRetorneEmEscopoIncorreto( $RETURN.getLine() );
-    }
-  }
   ;
 
 mais_expressao
@@ -330,11 +229,6 @@ parcela
 parcela_unario
   : '^' IDENT outros_ident dimensao
   | IDENT chamada_partes
-  {
-    if( !pilhaDeTabelas.topo().existeSimbolo( $IDENT.text ) ) {
-      Mensagens.erroVariavelNaoDeclarada($IDENT.line, $IDENT.text);
-    }
-  }
   | NUM_INT
   | NUM_REAL
   | '(' expressao ')'

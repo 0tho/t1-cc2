@@ -17,7 +17,7 @@ ARG4=$(TEMP)
 ARG5=casosDeTeste
 ARG6="408514, 407933, 408000, 386227"
 # sintatico, semantico, gerador, tudo
-ARG7=semantico
+ARG7=sintatico
 
 .PHONY: build
 
@@ -38,6 +38,7 @@ build: clean
 			-encoding "UTF-8" \
 			-no-listener \
 			-no-visitor \
+			-package $(PACKAGE) \
 			$(SRC)/$(PACKAGE)/$(GRAMMAR).g4
 	cd $(SRC); cp --parents \
 		**/*.java \

@@ -334,12 +334,12 @@ DIGITO
   ;
 
 COMENTARIO
-  : '{' ~[}\n]*? '}'
+  : '{' ~[}]*? '}'
     -> skip
   ;
 
 COMENTARIO_ERRADO
-  : '{' ~[}\n]*?
+  : '{' ~[}]*?
   ;
 
 Whitespace

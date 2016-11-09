@@ -40,5 +40,6 @@ public class LaErrorListener extends BaseErrorListener {
             errorBuffer.println( Mensagens.erroSintaticoProximoA( line, text ) );
           }
         }
+      throw new ParseCancellationException();
     }
 }

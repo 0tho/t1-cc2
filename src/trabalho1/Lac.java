@@ -51,7 +51,11 @@ public class Lac {
       LaErrorStrategy errorStrategy = new LaErrorStrategy();
       parser.setErrorHandler(errorStrategy);
 
-      parser.programa();
+      try {
+        parser.programa();
+      } catch ( Exception e ) {
+        // e.printStackTrace(printWriter);
+      }
 
       if ( !errorBuffer.isEmpty() ) {
         errorBuffer.println("Fim da compilacao");

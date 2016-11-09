@@ -47,7 +47,15 @@ declaracao_local
   }
   | 'tipo' IDENT ':' tipo
   {
-    tipos.adicionarTipo($IDENT.text);
+    Tipo novoTipo = new Tipo($IDENT.text, false, false);
+    if ($tipo.isRegistro) {
+      for( Simbolo s : $tipo.simbolos ) {
+        novoTipo.addSimbolo( s );
+      }
+    } else {
+
+    }
+    tipos.adicionarTipo( novoTipo );
   }
   ;
 
@@ -135,19 +143,14 @@ dimensao
   | // ε
   ;
 
-tipo returns [boolean isRegistro]
-  : registro { $isRegistro = true; }
+tipo returns [boolean isRegistro, List<Simbolo> simbolos]
+  : registro { $isRegistro = true; $simbolos = $registro.simbolos}
   | tipo_estendido { $isRegistro = false; }
   ;
 
 mais_ident returns [ List<String> nomes ]
 @init { $nomes = new ArrayList<String>(); }
   : (',' identificador { $nomes.add( $identificador.text); } )+
-  | // ε
-  ;
-
-mais_variaveis
-  : variavel mais_variaveis
   | // ε
   ;
 
@@ -176,7 +179,7 @@ valor_constante
   ;
 
 registro
-  : 'registro' variavel mais_variaveis 'fim_registro'
+  : 'registro' variavel+  'fim_registro'
   ;
 
 declaracao_global

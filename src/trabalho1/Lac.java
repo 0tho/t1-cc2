@@ -14,9 +14,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 
-public class CompiladorLa {
-
-    public static boolean shouldGenCode = true;
+public class Lac {
 
     public static void main(String[] args) throws Exception {
       String arquivoDeEntrada = null;
@@ -32,35 +30,35 @@ public class CompiladorLa {
       arquivoDeEntrada = args[0];
       arquivoDeSaida = args[1];
 
-      //InputStream casoDeTesteEntrada = TestaAnalisadorSemantico.class.getResourceAsStream("casosDeTeste/entrada/" + nomeArquivo);
       InputStream casoDeTesteEntrada = new FileInputStream(arquivoDeEntrada);
       FileOutputStream casoDeTesteSaida = new FileOutputStream(arquivoDeSaida);
       PrintWriter printWriter = new PrintWriter(casoDeTesteSaida);
 
       ANTLRInputStream input = new ANTLRInputStream(casoDeTesteEntrada);
-      laLexer lexer = new laLexer(input);
+      LaLexer lexer = new LaLexer(input);
       CommonTokenStream tokens = new CommonTokenStream(lexer);
-      laParser parser = new laParser(tokens);
+      LaParser parser = new LaParser(tokens);
 
+      Buffer errorBuffer = new Buffer();
+      Buffer geradorBuffer = new Buffer();
+
+      LaErrorListener errorListener = new LaErrorListener( errorBuffer );
       lexer.removeErrorListeners();
-      lexer.addErrorListener(ErrorListener.INSTANCE);
-
-      // parser.setErrorHandler(new LaErrorStrategy());
+      lexer.addErrorListener(errorListener);
       parser.removeErrorListeners();
-      parser.addErrorListener(ErrorListener.INSTANCE);
+      parser.addErrorListener(errorListener);
 
-      try {
-        parser.programa();
-      } catch ( Exception e ) {
-        // e.printStackTrace(printWriter);
-      }
+      LaErrorStrategy errorStrategy = new LaErrorStrategy();
+      parser.setErrorHandler(errorStrategy);
 
-      if( !shouldGenCode ) {
-        Saida.println("Fim da compilacao");
+      parser.programa();
+
+      if ( !errorBuffer.isEmpty() ) {
+        errorBuffer.println("Fim da compilacao");
+        printWriter.print( errorBuffer.getTexto() );
       } else {
-
+        printWriter.print( geradorBuffer.getTexto() );
       }
-      printWriter.print(Saida.getTexto());
       printWriter.close();
     }
 }

@@ -10,48 +10,44 @@ package trabalho1;
  */
 public class Mensagens {
 
-
-  public static void erroVariavelNaoDeclarada(int linha, String token) {
-    Saida.println( "Linha " + linha + ": identificador " + token + " nao declarado" );
-    CompiladorLa.shouldGenCode = false;
+  private static String header( int linha ) {
+    return "Linha " + linha + ": ";
   }
 
-  public static void erroVariavelJaDeclarada(int linha, String token) {
-    Saida.println( "Linha " + linha + ": identificador " + token + " ja declarado anteriormente" );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroVariavelNaoDeclarada(int linha, String token) {
+    return header(linha) + "identificador " + token + " nao declarado";
   }
 
-  public static void erroTipoNaoDeclarada(int linha, String token) {
-    Saida.println( "Linha " + linha + ": tipo " + token + " nao declarado" );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroVariavelJaDeclarada(int linha, String token) {
+    return header(linha) + "identificador " + token + " ja declarado anteriormente";
   }
 
-  public static void erroRetorneEmEscopoIncorreto( int linha ) {
-    Saida.println( "Linha " + linha + ": comando retorne nao permitido nesse escopo" );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroTipoNaoDeclarada(int linha, String token) {
+    return header(linha) + "tipo " + token + " nao declarado";
   }
 
-  public static void erroAtribuicaoIncompativel( int linha, String text ) {
-    Saida.println( "Linha " + linha + ": atribuicao nao compativel para " + text );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroRetorneEmEscopoIncorreto( int linha ) {
+    return header(linha) + "comando retorne nao permitido nesse escopo";
   }
 
-  public static void erroIncompatibilidadeDeParametros( int linha, String text ) {
-    Saida.println( "Linha " + linha + ": incompatibilidade de parametros na chamada de " + text );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroAtribuicaoIncompativel( int linha, String text ) {
+    return header(linha) + "atribuicao nao compativel para " + text;
+  }
+
+  public static String erroIncompatibilidadeDeParametros( int linha, String text ) {
+    return header(linha) + "incompatibilidade de parametros na chamada de " + text;
   }
 
   // Sintatico
-  public static void erroSintaticoProximoA( int linha, String token ) {
-    Saida.println( "Linha " + linha + ": erro sintatico proximo a " + token );
-    CompiladorLa.shouldGenCode = false;
+  public static String erroSintaticoProximoA( int linha, String token ) {
+    return header(linha) + "erro sintatico proximo a " + token;
   }
 
-  public static void erroCaracterNaoIdentificado( int linha, String caracter ) {
-    Saida.println( "Linha " + linha + ": " + caracter + " - simbolo nao identificado" );
+  public static String erroCaracterNaoIdentificado( int linha, String caracter ) {
+    return header(linha) + caracter + " - simbolo nao identificado";
   }
 
-  public static void erroComentarioNaoFechado( int linha ) {
-    Saida.println( "Linha " + (linha+1) + ": comentario nao fechado" );
+  public static String erroComentarioNaoFechado( int linha ) {
+    return header(linha) + "comentario nao fechado";
   }
 }

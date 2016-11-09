@@ -1,4 +1,4 @@
-grammar la;
+grammar La;
 
 programa
   : declaracoes 'algoritmo' corpo 'fim_algoritmo'

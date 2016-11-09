@@ -5,13 +5,13 @@ DIST=$(BASE_DIR)/dist
 TEMP=$(BASE_DIR)/temp
 LIBRARIES=$(BASE_DIR)/libs
 
-GRAMMAR=la
+GRAMMAR=La
 PACKAGE=trabalho1
 
 ANTLR=$(LIBRARIES)/antlr-4.5.3-complete.jar
 
 ARG1=corretorAutomatico/CorretorTrabalho1.jar
-ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).CompiladorLa"
+ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).Lac"
 ARG3=gcc
 ARG4=$(TEMP)
 ARG5=casosDeTeste
@@ -37,7 +37,7 @@ build: clean
 			-o $(BUILD)/$(PACKAGE) \
 			-encoding "UTF-8" \
 			-no-listener \
-			-no-visitor \
+      -visitor \
 			-package $(PACKAGE) \
 			$(SRC)/$(PACKAGE)/$(GRAMMAR).g4
 	cd $(SRC); cp --parents \

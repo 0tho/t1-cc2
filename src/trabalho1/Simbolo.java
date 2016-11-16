@@ -2,9 +2,9 @@ package trabalho1;
 
 public class Simbolo {
   private String nome;
-  private Tipo tipo;
+  private String tipo;
 
-  public Simbolo (String nome, Tipo tipo) {
+  public Simbolo (String nome, String tipo) {
     this.nome = nome;
     this.tipo = tipo;
   }
@@ -13,7 +13,7 @@ public class Simbolo {
     return nome;
   }
 
-  public Tipo getTipo() {
+  public String getTipo() {
     return tipo;
   }
 }

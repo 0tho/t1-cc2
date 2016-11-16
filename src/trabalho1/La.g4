@@ -15,18 +15,17 @@ decl_local_global
   ;
 
 declaracao_local
-  : 'declare' variavel
-  | 'constante' IDENT ':' tipo_basico '=' valor_constante
-  | 'tipo' IDENT ':' tipo
+  : 'declare' variavel # declareVariavel
+  | 'constante' IDENT ':' tipo_basico '=' valor_constante # declareConstante
+  | 'tipo' IDENT ':' tipo # declareTipo
   ;
 
 variavel
-  : IDENT dimensao mais_var ':' tipo
+  : IDENT dimensao mais_var* ':' tipo
   ;
 
 mais_var
-  : (',' IDENT dimensao )+
-  | // ε
+  : ',' IDENT dimensao
   ;
 
 lista_identificador
@@ -53,8 +52,8 @@ dimensao
   ;
 
 tipo
-  : registro
-  | tipo_estendido
+  : registro #tipoRegistro
+  | tipo_estendido #tipoReferencia
   ;
 
 mais_ident

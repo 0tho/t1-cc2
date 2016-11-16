@@ -22,7 +22,7 @@ public class Mensagens {
     return header(linha) + "identificador " + token + " ja declarado anteriormente";
   }
 
-  public static String erroTipoNaoDeclarada(int linha, String token) {
+  public static String erroTipoNaoDeclarado(int linha, String token) {
     return header(linha) + "tipo " + token + " nao declarado";
   }
 

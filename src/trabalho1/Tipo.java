@@ -5,13 +5,23 @@ import java.util.ArrayList;
 public class Tipo {
   private String nome;
   private ArrayList<Simbolo> simbolos;
+  private String referencia;
 
   public Tipo(String nome) {
     this.nome = nome;
   }
 
+  public Tipo(String nome, String referencia) {
+    this(nome);
+    this.referencia = referencia;
+  }
+
   public String getNome() {
     return nome;
+  }
+
+  public String getReferencia() {
+    return referencia;
   }
 
   public boolean isSimple() {
@@ -19,10 +29,10 @@ public class Tipo {
   }
 
   public void addSimbolo(Simbolo simbolo) {
-    if( simbolo.getTipo().isSimple()) {
+    if( referencia == null ) {
       simbolos.add(simbolo);
     } else {
-      throw new Error("Registros só podem conter tipos simples");
+      throw new Error("Referencias a outros tipos não podem conter subvalores");
     }
   }
 

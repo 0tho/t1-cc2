@@ -14,7 +14,13 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.BailErrorStrategy;
 
+
+import org.antlr.v4.runtime.tree.ParseTree;
+
 public class Lac {
+
+    public static Buffer errorBuffer = new Buffer();
+    public static Buffer geradorBuffer = new Buffer();
 
     public static void main(String[] args) throws Exception {
       String arquivoDeEntrada = null;
@@ -39,9 +45,6 @@ public class Lac {
       CommonTokenStream tokens = new CommonTokenStream(lexer);
       LaParser parser = new LaParser(tokens);
 
-      Buffer errorBuffer = new Buffer();
-      Buffer geradorBuffer = new Buffer();
-
       LaErrorListener errorListener = new LaErrorListener( errorBuffer );
       lexer.removeErrorListeners();
       lexer.addErrorListener(errorListener);
@@ -51,8 +54,13 @@ public class Lac {
       LaErrorStrategy errorStrategy = new LaErrorStrategy();
       parser.setErrorHandler(errorStrategy);
 
+      LaExtendedVisitor visitor = new LaExtendedVisitor();
+      ParseTree tree;
+
+
       try {
-        parser.programa();
+        tree = parser.programa();
+        visitor.visit(tree);
       } catch ( Exception e ) {
         // e.printStackTrace(printWriter);
       }

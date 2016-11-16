@@ -21,25 +21,19 @@ public class LaErrorListener extends BaseErrorListener {
                             int line, int charPositionInLine,
                             String msg, RecognitionException e)
     {
-        // FailedPredicateException, InputMismatchException, LexerNoViableAltException, NoViableAltException
-        if ( e instanceof LexerNoViableAltException ) {
-          String erro[] = msg.split("'");
-          String caracter = Character.toString(erro[1].charAt(0));
+      Token token = (Token) offendingSymbol;
+      int tokenType = token.getType();
+      if ( tokenType == LaLexer.COMENTARIO_ERRADO ) {
+        errorBuffer.println( Mensagens.erroComentarioNaoFechado( line ) );
+      } else if(tokenType == LaLexer.CaracterErrado) {
+        errorBuffer.println( Mensagens.erroCaracterNaoIdentificado( line, token.getText() ) );
+      } else {
+        String text;
 
-          errorBuffer.println( Mensagens.erroCaracterNaoIdentificado( line, caracter ) );
-        } else {
-          Token token = (Token) offendingSymbol;
-          if ( token.getType() == LaLexer.COMENTARIO_ERRADO ) {
-            errorBuffer.println( Mensagens.erroComentarioNaoFechado( line ) );
-          } else {
-            String text;
+        text  = token.getText();
+        if( text == "<EOF>") text = "EOF";
 
-            text  = token.getText();
-            if( text == "<EOF>") text = "EOF";
-
-            errorBuffer.println( Mensagens.erroSintaticoProximoA( line, text ) );
-          }
-        }
-      throw new ParseCancellationException();
+        errorBuffer.println( Mensagens.erroSintaticoProximoA( line, text ) );
+      }
     }
 }

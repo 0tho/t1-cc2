@@ -353,3 +353,7 @@ Newline
     )
     -> skip
   ;
+
+CaracterErrado
+  : .
+  ;

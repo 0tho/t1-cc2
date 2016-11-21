@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Tipo {
   private String nome;
-  private ArrayList<Simbolo> simbolos;
+  private ArrayList<Simbolo> simbolos = new ArrayList<Simbolo>();
   private String referencia;
 
   public Tipo(String nome) {

@@ -62,7 +62,7 @@ public class Lac {
         tree = parser.programa();
         visitor.visit(tree);
       } catch ( Exception e ) {
-        // e.printStackTrace(printWriter);
+        e.printStackTrace(printWriter);
       }
 
       if ( !errorBuffer.isEmpty() ) {

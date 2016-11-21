@@ -128,17 +128,16 @@ comandos
   ;
 
 cmd
-  : 'leia' '(' lista_identificador ')'
-  | 'escreva' '(' expressao mais_expressao ')'
-  | 'se' expressao 'entao' comandos senao_opcional 'fim_se'
-  | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso'
-  | 'para' IDENT '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para'
-  | 'enquanto' expressao 'faca' comandos 'fim_enquanto'
-  | 'faca' comandos 'ate' expressao
-  | '^' IDENT outros_ident dimensao '<-' expressao
-  | IDENT '(' argumentos_opcional ')'
-  | IDENT outros_ident dimensao '<-' expressao
-  | RETURN expressao
+  : 'leia' '(' lista_identificador ')' #cmdLeia
+  | 'escreva' '(' expressao mais_expressao ')' #cmdEscreva
+  | 'se' expressao 'entao' comandos senao_opcional 'fim_se' #cmdSe
+  | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso' #cmdCaso
+  | 'para' IDENT '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para' #cmdParaAte
+  | 'enquanto' expressao 'faca' comandos 'fim_enquanto' #cmdEnquanto
+  | 'faca' comandos 'ate' expressao #cmdFacaAte
+  | '^'? IDENT outros_ident dimensao '<-' expressao #cmdAtribui
+  | IDENT '(' argumentos_opcional ')' #cmdChamadaDeFuncao
+  | RETURN expressao #cmdRetorne
   ;
 
 mais_expressao

@@ -14,11 +14,11 @@ public class Mensagens {
     return "Linha " + linha + ": ";
   }
 
-  public static String erroVariavelNaoDeclarada(int linha, String token) {
+  public static String erroIdentificadorNaoDeclarado(int linha, String token) {
     return header(linha) + "identificador " + token + " nao declarado";
   }
 
-  public static String erroVariavelJaDeclarada(int linha, String token) {
+  public static String erroIdentificadorJaDeclarado(int linha, String token) {
     return header(linha) + "identificador " + token + " ja declarado anteriormente";
   }
 

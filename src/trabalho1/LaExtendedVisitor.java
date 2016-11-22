@@ -205,7 +205,8 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
     Token procedimentoTk = ctx.IDENT().getSymbol();
     String simboloId = procedimentoTk.getText();
     int linha = procedimentoTk.getLine();
-    adicionarSimbolo(new Simbolo(simboloId, "", linha, LacClass.PROCEDIMENTO));
+    Simbolo procedimento = new Simbolo(simboloId, "", linha, LacClass.PROCEDIMENTO)
+    adicionarSimbolo(procedimento);
 
     visitChildren(ctx);
     return null;
@@ -217,7 +218,8 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
     Token funcaoTk = ctx.IDENT().getSymbol();
     String simboloId = funcaoTk.getText();
     int linha = funcaoTk.getLine();
-    adicionarSimbolo(new Simbolo(simboloId, "", linha, LacClass.FUNCAO));
+    Simbolo funcao = new Simbolo(simboloId, "", linha, LacClass.FUNCAO)
+    adicionarSimbolo(funcao);
 
     visitChildren(ctx);
     return null;

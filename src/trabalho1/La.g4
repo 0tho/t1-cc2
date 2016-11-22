@@ -225,11 +225,11 @@ parcela
   ;
 
 parcela_unario
-  : '^' IDENT outros_ident dimensao
-  | IDENT chamada_partes
-  | NUM_INT
-  | NUM_REAL
-  | '(' expressao ')'
+  : '^' IDENT outros_ident dimensao #parcelaUnarioPonteiro
+  | IDENT chamada_partes #parcelaUnarioChamadaPartes
+  | NUM_INT #parcelaUnarioInteiro
+  | NUM_REAL #parcelaUnarioReal
+  | '(' expressao ')' #parcelaUnarioParenteses
   ;
 
 parcela_nao_unario
@@ -332,12 +332,12 @@ DIGITO
   ;
 
 COMENTARIO
-  : '{' ~[}]*? '}'
+  : '{' ~[}\r\n]*? '}'
     -> skip
   ;
 
 COMENTARIO_ERRADO
-  : '{' ~[}]*?
+  : '{' ~[}\r\n]*?
   ;
 
 Whitespace

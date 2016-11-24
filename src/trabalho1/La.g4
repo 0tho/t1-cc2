@@ -1,245 +1,89 @@
-grammar La;
+parser grammar La;
 
-programa
-  : declaracoes 'algoritmo' corpo 'fim_algoritmo'
-  ;
+programa : declaracao* BeginAlgorithm corpo EndAlgorithm;
 
-declaracoes
-  : decl_local_global declaracoes
-  | // ε
-  ;
-
-decl_local_global
+declaracao
   : declaracao_local
   | declaracao_global
   ;
 
 declaracao_local
-  : 'declare' variavel # declareVariavel
-  | 'constante' IDENT ':' tipo_basico '=' valor_constante # declareConstante
-  | 'tipo' IDENT ':' tipo # declareTipo
-  ;
-
-variavel
-  : IDENT dimensao mais_var* ':' tipo
-  ;
-
-mais_var
-  : ',' IDENT dimensao
-  ;
-
-lista_identificador
-  : identificador mais_ident
-  ;
-
-identificador
-  : ponteiros_opcionais IDENT dimensao outros_ident
-  ;
-
-ponteiros_opcionais
-  : PONTEIRO ponteiros_opcionais
-  | // ε
-  ;
-
-outros_ident
-  : '.' identificador
-  | // ε
-  ;
-
-dimensao
-  : '[' exp_aritmetica ']' dimensao
-  | // ε
-  ;
-
-tipo
-  : registro #tipoRegistro
-  | tipo_estendido #tipoReferencia
-  ;
-
-mais_ident
-  : (',' identificador )+
-  | // ε
-  ;
-
-tipo_basico
-  : 'literal'
-  | 'inteiro'
-  | 'real'
-  | 'logico'
-  ;
-
-tipo_basico_ident
-  : tipo_basico
-  | IDENT
-  ;
-
-tipo_estendido
-  : ponteiros_opcionais tipo_basico_ident
-  ;
-
-valor_constante
-  : CADEIA
-  | NUM_INT
-  | NUM_REAL
-  | 'verdadeiro'
-  | 'falso'
-  ;
-
-registro
-  : 'registro' variavel+  'fim_registro'
+  : Declare declare_variavel
+  | Constant Ident AssignType tipo_basico Equal valor_constante
+  | Type Ident AssignType tipo
   ;
 
 declaracao_global
-  : 'procedimento' IDENT '(' parametros_opcional ')' declaracoes_locais comandos 'fim_procedimento' #declareProcedimento
-  | 'funcao' IDENT '(' parametros_opcional ')' ':' tipo_estendido declaracoes_locais comandos 'fim_funcao' #declareFuncao
+  : Procedure Ident LeftParen lista_parametros? RightParen declaracao_local* comando* EndProcedure;
+  | Function Ident LeftParen lista_parametros? RightParen AssignType tipo_estendido declaracao_local* comando* EndFunction
   ;
 
-parametros_opcional
-  : parametro
-  | // ε
+tipo_basico : BasicTypes;
+tipo_basico_identificador: tipo_basico | Ident;
+tipo_estendido: Pointer* tipo_basico_identificador;
+
+declare_variavel: variavel_unica mais_variaveis* AssignType tipo;
+mais_variaveis: Separator variavel_unica;
+variavel_unica: Ident dimensao*;
+identificador: Pointer* Ident dimensao* sub_identificador*;
+sub_identificador: Acessor identificador;
+mais_identificador: Separator identificador;
+dimensao: LeftBracket exp_aritmetica RightBracket;
+tipo: registro | tipo_estendido;
+
+valor_constante: Cadeia | Int | Real | True | False;
+registro: Register declare_variavel+ EndRegister;
+
+lista_parametros: parametro mais_parametro*;
+parametro: Var? identificador mais_identificador* AssignType tipo_estendido;
+mais_parametro: Separator parametro;
+
+
+corpo: declaracao_local* comando*;
+comando
+  : Read LeftParen identificador mais_identificador* RightParen
+  | Write LeftParen expressao mais_expressao* RightParen
+  | If expressao Then cmd* senao? EndIf
+  | Case exp_aritmetica Be selecao senao? EndCase
+  | For Ident Assign exp_aritmetica Until exp_aritmetica Do comando* EndFor
+  | While expressao Do comando* EndWhile
+  | Do comando* Until expressao
+  | Pointer? Ident sub_identificador* dimensao* Assign expressao
+  | Ident LeftParen lista_expressao? RightParen
+  | Return expressao
   ;
 
-parametro
-  : var_opcional identificador mais_ident ':' tipo_estendido mais_parametros
-  ;
 
-var_opcional
-  : 'var'
-  | // ε
-  ;
+senao: Else cmd*;
+selecao: constantes AssignType comando* selecao*;
+constantes: numero_intervalo mais_constantes*;
+numero_intervalo: Minus? Int (Interval Minus? Int)?;
 
-mais_parametros
-  : ',' parametro
-  | // ε
-  ;
+mais_expressao: Separator expressao;
+lista_expressao:  expressao mais_expressao*;
+/*-----------------------------------------------------------*/
 
-declaracoes_locais
-  : declaracao_local declaracoes_locais
-  | // ε
-  ;
-
-corpo
-  : declaracoes_locais comandos
-  ;
-
-comandos
-  : cmd+
-  | // ε
-  ;
-
-cmd
-  : 'leia' '(' lista_identificador ')' #cmdLeia
-  | 'escreva' '(' lista_expressao ')' #cmdEscreva
-  | 'se' expressao 'entao' comandos senao_opcional 'fim_se' #cmdSe
-  | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso' #cmdCaso
-  | 'para' IDENT '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para' #cmdParaAte
-  | 'enquanto' expressao 'faca' comandos 'fim_enquanto' #cmdEnquanto
-  | 'faca' comandos 'ate' expressao #cmdFacaAte
-  | PONTEIRO? IDENT outros_ident dimensao '<-' expressao #cmdAtribui
-  | IDENT '(' argumentos_opcional ')' #cmdChamadaDeFuncao
-  | RETURN expressao #cmdRetorne
-  ;
-
-mais_expressao
-  : (',' expressao)+
-  | // ε
-  ;
-
-senao_opcional
-  : 'senao' comandos
-  | // ε
-  ;
-
-argumentos_opcional
-  : lista_expressao
-  | // ε
-  ;
-
-selecao
-  : constantes ':' comandos mais_selecao
-  ;
-
-mais_selecao
-  : selecao
-  | // ε
-  ;
-
-constantes
-  : numero_intervalo mais_constantes
-  ;
-
-mais_constantes
-  : ',' constantes
-  | // ε
-  ;
-
-numero_intervalo
-  : op_unario NUM_INT intervalo_opcional
-  ;
-
-intervalo_opcional
-  : '..' op_unario NUM_INT
-  | // ε
-  ;
-
-op_unario
-  : '-'
-  | // ε
-  ;
-
-exp_aritmetica
-  : termo outros_termos
-  ;
-
-op_multiplicacao
-  : '*'
-  | '/'
-  ;
-
-op_adicao
-  : '+'
-  | '-'
-  ;
-
-termo
-  : fator outros_fatores
-  ;
-
-outros_termos
-  : op_adicao termo outros_termos
-  | // ε
-  ;
-
-fator
-  : parcela outras_parcelas
-  ;
-
-outros_fatores
-  : op_multiplicacao fator outros_fatores
-  | // ε
-  ;
-
-parcela
-  : op_unario parcela_unario
-  | parcela_nao_unario
-  ;
-
+exp_aritmetica: termo outros_termos;
+outros_termos: op_adicao termo outros_termos;
+fator: parcela outras_parcelas;
+outros_fatores: op_multiplicacao fator outros_fatores;
+parcela: Minus? parcela_unario | parcela_nao_unario;
 parcela_unario
-  : PONTEIRO? IDENT outros_ident dimensao #parcelaUnarioVariavel
-  | IDENT '(' lista_expressao ')' #parcelaUnarioChamadaFuncao
-  | NUM_INT #parcelaUnarioInteiro
-  | NUM_REAL #parcelaUnarioReal
-  | '(' expressao ')' #parcelaUnarioParenteses
+  : Ident LeftParen expressao mais_expressao* RightParen
+  | Pointer? Ident sub_identificador* dimensao*
+  | Int
+  | Real
+  | LeftParen expressao RightParen
   ;
 
 parcela_nao_unario
-  : '&' IDENT outros_ident dimensao
-  | CADEIA
+  : & Ident sub_identificador* dimensao*
+  | String;
   ;
 
 outras_parcelas
-  : '%' parcela outras_parcelas
-  | // ε
+  : % parcela outras_parcelas
+  | // e
   ;
 
 exp_relacional
@@ -248,30 +92,20 @@ exp_relacional
 
 op_opcional
   : op_relacional exp_aritmetica
-  | // ε
+  | // e
   ;
 
 op_relacional
-  : '='
-  | '<>'
-  | '>='
-  | '<='
-  | '>'
-  | '<'
+  : Equal
+  | NotEqual
+  | GreaterEqual
+  | LesserEqual
+  | Greater
+  | Lesser
   ;
-
 
 expressao
   : termo_logico outros_termos_logicos
-  ;
-
-lista_expressao
-  : expressao mais_expressao
-  ;
-
-op_nao
-  : 'nao'
-  | // ε
   ;
 
 termo_logico
@@ -279,80 +113,24 @@ termo_logico
   ;
 
 outros_termos_logicos
-  : 'ou' termo_logico outros_termos_logicos
-  | // ε
+  : Or termo_logico outros_termos_logicos
+  | // e
   ;
 
 outros_fatores_logicos
-  : 'e' fator_logico outros_fatores_logicos
-  | // ε
+  : And fator_logico outros_fatores_logicos
+  | // e
   ;
+  
 
-fator_logico
-  : op_nao parcela_logica
+/*
+expressao
+  : expressao Or expressao
+  | expressao And expressao
+  | expressao Mult expressao
+  | expressao Div expressao
+  | expresaso Mod expressao
+  | expressao Plus expressao
+  | expressao Minus expressao
   ;
-
-parcela_logica
-  : 'verdadeiro'
-  | 'falso'
-  | exp_relacional
-  ;
-
-RETURN
-  : 'retorne'
-  ;
-
-PONTEIRO
-  : '^'
-  ;
-
-IDENT
-  : NAO_DIGITO ( NAO_DIGITO | DIGITO )*
-  ;
-
-NUM_INT
-  : DIGITO+
-  ;
-
-NUM_REAL
-  : DIGITO+ '.' DIGITO+
-  ;
-
-CADEIA
-  : '"' ~["\r\n]*? '"'
-  ;
-
-fragment
-NAO_DIGITO
-  : [a-zA-Z_]
-  ;
-
-fragment
-DIGITO
-  : [0-9]
-  ;
-
-COMENTARIO
-  : '{' ~[}\r\n]*? '}'
-    -> skip
-  ;
-
-COMENTARIO_ERRADO
-  : '{' ~[}\r\n]*?
-  ;
-
-Whitespace
-  : [ \t]+
-    -> skip
-  ;
-
-Newline
-  : (   '\r' '\n'?
-    |   '\n'
-    )
-    -> skip
-  ;
-
-CaracterErrado
-  : .
-  ;
+*/

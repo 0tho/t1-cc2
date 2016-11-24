@@ -37,7 +37,7 @@ identificador
   ;
 
 ponteiros_opcionais
-  : '^' ponteiros_opcionais
+  : PONTEIRO ponteiros_opcionais
   | // ε
   ;
 
@@ -129,19 +129,19 @@ comandos
 
 cmd
   : 'leia' '(' lista_identificador ')' #cmdLeia
-  | 'escreva' '(' expressao mais_expressao ')' #cmdEscreva
+  | 'escreva' '(' lista_expressao ')' #cmdEscreva
   | 'se' expressao 'entao' comandos senao_opcional 'fim_se' #cmdSe
   | 'caso' exp_aritmetica 'seja' selecao senao_opcional 'fim_caso' #cmdCaso
   | 'para' IDENT '<-' exp_aritmetica 'ate' exp_aritmetica 'faca' comandos 'fim_para' #cmdParaAte
   | 'enquanto' expressao 'faca' comandos 'fim_enquanto' #cmdEnquanto
   | 'faca' comandos 'ate' expressao #cmdFacaAte
-  | '^'? IDENT outros_ident dimensao '<-' expressao #cmdAtribui
+  | PONTEIRO? IDENT outros_ident dimensao '<-' expressao #cmdAtribui
   | IDENT '(' argumentos_opcional ')' #cmdChamadaDeFuncao
   | RETURN expressao #cmdRetorne
   ;
 
 mais_expressao
-  : ',' expressao mais_expressao
+  : (',' expressao)+
   | // ε
   ;
 
@@ -151,7 +151,7 @@ senao_opcional
   ;
 
 argumentos_opcional
-  : expressao mais_expressao
+  : lista_expressao
   | // ε
   ;
 
@@ -225,8 +225,8 @@ parcela
   ;
 
 parcela_unario
-  : '^' IDENT outros_ident dimensao #parcelaUnarioPonteiro
-  | IDENT chamada_partes #parcelaUnarioChamadaPartes
+  : PONTEIRO? IDENT outros_ident dimensao #parcelaUnarioVariavel
+  | IDENT '(' lista_expressao ')' #parcelaUnarioChamadaFuncao
   | NUM_INT #parcelaUnarioInteiro
   | NUM_REAL #parcelaUnarioReal
   | '(' expressao ')' #parcelaUnarioParenteses
@@ -239,12 +239,6 @@ parcela_nao_unario
 
 outras_parcelas
   : '%' parcela outras_parcelas
-  | // ε
-  ;
-
-chamada_partes
-  : '(' expressao mais_expressao ')'
-  | outros_ident dimensao
   | // ε
   ;
 
@@ -269,6 +263,10 @@ op_relacional
 
 expressao
   : termo_logico outros_termos_logicos
+  ;
+
+lista_expressao
+  : expressao mais_expressao
   ;
 
 op_nao
@@ -300,9 +298,12 @@ parcela_logica
   | exp_relacional
   ;
 
-
 RETURN
   : 'retorne'
+  ;
+
+PONTEIRO
+  : '^'
   ;
 
 IDENT

@@ -35,6 +35,12 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
     return false;
   }
 
+  private void checarSePilhaContemSimbolo(Token ident) {
+    if( !pilhaContemSimbolo(ident.getText()) ) {
+      Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado(ident.getLine(), ident.getText()));
+    }
+  }
+
   private void adicionarSimbolo(Simbolo simbolo) {
     if ( !pilhaContemSimbolo(simbolo.getNome() )) {
       pilha.peek().put(simbolo.getNome(), simbolo);
@@ -205,7 +211,7 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
     Token procedimentoTk = ctx.IDENT().getSymbol();
     String simboloId = procedimentoTk.getText();
     int linha = procedimentoTk.getLine();
-    Simbolo procedimento = new Simbolo(simboloId, "", linha, LacClass.PROCEDIMENTO)
+    Simbolo procedimento = new Simbolo(simboloId, "", linha, LacClass.PROCEDIMENTO);
     adicionarSimbolo(procedimento);
 
     visitChildren(ctx);
@@ -218,7 +224,7 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
     Token funcaoTk = ctx.IDENT().getSymbol();
     String simboloId = funcaoTk.getText();
     int linha = funcaoTk.getLine();
-    Simbolo funcao = new Simbolo(simboloId, "", linha, LacClass.FUNCAO)
+    Simbolo funcao = new Simbolo(simboloId, "", linha, LacClass.FUNCAO);
     adicionarSimbolo(funcao);
 
     visitChildren(ctx);
@@ -228,6 +234,35 @@ public class LaExtendedVisitor extends LaBaseVisitor<Object> {
   @Override
   public Void visitCorpo(LaParser.CorpoContext ctx) {
     scopeCanReturn = false;
+    visitChildren(ctx);
+    return null;
+  }
+
+  @Override
+  public Void visitIdentificador(LaParser.IdentificadorContext ctx) {
+    Token ident = ctx.IDENT().getSymbol();
+    checarSePilhaContemSimbolo(ident);
+    visitChildren(ctx);
+    return null;
+  }
+
+  @Override
+  public Void visitParcelaUnarioChamadaFuncao(LaParser.ParcelaUnarioChamadaFuncaoContext ctx) {
+    Token ident = ctx.IDENT().getSymbol();
+    checarSePilhaContemSimbolo(ident);
+    visitChildren(ctx);
+    return null;
+  }
+
+  @Override
+  public Token visitOutros_ident(LaParser.Outros_identContext ctx) {
+    return ctx.IDENT().getSymbol();
+  }
+
+  @Override
+  public Void visitParcelaUnarioVariavel(LaParser.ParcelaUnarioVariavelContext ctx) {
+    Token ident = ctx.IDENT().getSymbol();
+    checarSePilhaContemSimbolo(ident);
     visitChildren(ctx);
     return null;
   }

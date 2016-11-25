@@ -8,6 +8,7 @@ public class Simbolo {
   private LacClass classe;
   private int linha;
   private ArrayList<Simbolo> simbolos;
+  private ArrayList<Integer> dimensoes;
 
   public Simbolo (String nome, String tipo, int linha, LacClass classe ) {
     this.nome = nome;
@@ -15,6 +16,7 @@ public class Simbolo {
     this.classe = classe;
     this.linha = linha;
     this.simbolos = new ArrayList<Simbolo>();
+    this.dimensoes = new ArrayList<Integer>();
   }
 
   public Simbolo (String nome, String tipo, int linha) {
@@ -43,5 +45,21 @@ public class Simbolo {
 
   public ArrayList<Simbolo> getSimbolos() {
     return simbolos;
+  }
+
+  public ArrayList<Integer> getDimensoes() {
+    return dimensoes;
+  }
+
+  public void setTipo( String tipo ) {
+    this.tipo = tipo;
+  }
+
+  public void setClasse( LacClass classe ) {
+    this.classe = classe;
+  }
+
+  public void setDimensoes( ArrayList<Integer> dimensoes ) {
+    this.dimensoes = dimensoes;
   }
 }

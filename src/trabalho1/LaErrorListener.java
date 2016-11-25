@@ -23,9 +23,9 @@ public class LaErrorListener extends BaseErrorListener {
     {
       Token token = (Token) offendingSymbol;
       int tokenType = token.getType();
-      if ( tokenType == LaLexer.COMENTARIO_ERRADO ) {
+      if ( tokenType == LaLexer.WrongComment ) {
         errorBuffer.println( Mensagens.erroComentarioNaoFechado( line ) );
-      } else if(tokenType == LaLexer.CaracterErrado) {
+      } else if(tokenType == LaLexer.WrongCharacter) {
         errorBuffer.println( Mensagens.erroCaracterNaoIdentificado( line, token.getText() ) );
       } else {
         String text;

@@ -55,13 +55,13 @@ public class Lac {
       LaErrorStrategy errorStrategy = new LaErrorStrategy();
       parser.setErrorHandler(errorStrategy);
 
-      LaExtendedVisitor visitor = new LaExtendedVisitor();
+      // LaExtendedVisitor visitor = new LaExtendedVisitor();
       ParseTree tree;
 
 
       try {
         tree = parser.programa();
-        visitor.visit(tree);
+        // visitor.visit(tree);
       }
       catch ( ParseCancellationException e ) {
 

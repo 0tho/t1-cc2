@@ -39,7 +39,16 @@ build: clean
 			-no-listener \
       -visitor \
 			-package $(PACKAGE) \
-			$(SRC)/$(PACKAGE)/$(GRAMMAR).g4
+			$(SRC)/$(PACKAGE)/$(GRAMMAR)Lexer.g4
+	cd $(SRC); \
+		java \
+			-jar $(ANTLR) \
+			-o $(BUILD)/$(PACKAGE) \
+			-encoding "UTF-8" \
+			-no-listener \
+			-visitor \
+			-package $(PACKAGE) \
+			$(SRC)/$(PACKAGE)/$(GRAMMAR)Parser.g4
 	cd $(SRC); cp --parents \
 		**/*.java \
 		-t $(BUILD)

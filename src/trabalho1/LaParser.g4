@@ -1,6 +1,8 @@
-parser grammar La;
+parser grammar LaParser;
 
-programa : declaracao* BeginAlgorithm corpo EndAlgorithm;
+options { tokenVocab=LaLexer; }
+
+programa : declaracao* BeginAlgorithm corpo EndAlgorithm EOF;
 
 declaracao
   : declaracao_local
@@ -14,7 +16,7 @@ declaracao_local
   ;
 
 declaracao_global
-  : Procedure Ident LeftParen lista_parametros? RightParen declaracao_local* comando* EndProcedure;
+  : Procedure Ident LeftParen lista_parametros? RightParen declaracao_local* comando* EndProcedure
   | Function Ident LeftParen lista_parametros? RightParen AssignType tipo_estendido declaracao_local* comando* EndFunction
   ;
 
@@ -31,7 +33,7 @@ mais_identificador: Separator identificador;
 dimensao: LeftBracket exp_aritmetica RightBracket;
 tipo: registro | tipo_estendido;
 
-valor_constante: Cadeia | Int | Real | True | False;
+valor_constante: String | Int | Real | True | False;
 registro: Register declare_variavel+ EndRegister;
 
 lista_parametros: parametro mais_parametro*;
@@ -43,7 +45,7 @@ corpo: declaracao_local* comando*;
 comando
   : Read LeftParen identificador mais_identificador* RightParen
   | Write LeftParen expressao mais_expressao* RightParen
-  | If expressao Then cmd* senao? EndIf
+  | If expressao Then comando* senao? EndIf
   | Case exp_aritmetica Be selecao senao? EndCase
   | For Ident Assign exp_aritmetica Until exp_aritmetica Do comando* EndFor
   | While expressao Do comando* EndWhile
@@ -54,36 +56,75 @@ comando
   ;
 
 
-senao: Else cmd*;
+senao: Else comando*;
 selecao: constantes AssignType comando* selecao*;
 constantes: numero_intervalo mais_constantes*;
 numero_intervalo: Minus? Int (Interval Minus? Int)?;
 
 mais_expressao: Separator expressao;
+/*
 lista_expressao:  expressao mais_expressao*;
+*/
 /*-----------------------------------------------------------*/
 
-exp_aritmetica: termo outros_termos;
-outros_termos: op_adicao termo outros_termos;
-fator: parcela outras_parcelas;
-outros_fatores: op_multiplicacao fator outros_fatores;
-parcela: Minus? parcela_unario | parcela_nao_unario;
+op_unario
+  : Minus
+  | // ε
+  ;
+
+exp_aritmetica
+  : termo outros_termos
+  ;
+
+op_multiplicacao
+  : Mult
+  | Div
+  ;
+
+op_adicao
+  : Plus
+  | Minus
+  ;
+
+termo
+  : fator outros_fatores
+  ;
+
+outros_termos
+  : op_adicao termo outros_termos
+  | // ε
+  ;
+
+fator
+  : parcela outras_parcelas
+  ;
+
+outros_fatores
+  : op_multiplicacao fator outros_fatores
+  | // ε
+  ;
+
+parcela
+  : op_unario parcela_unario
+  | parcela_nao_unario
+  ;
+
 parcela_unario
-  : Ident LeftParen expressao mais_expressao* RightParen
-  | Pointer? Ident sub_identificador* dimensao*
-  | Int
-  | Real
-  | LeftParen expressao RightParen
+  : Pointer? Ident sub_identificador* dimensao* #parcelaUnarioVariavel
+  | Ident LeftParen lista_expressao RightParen #parcelaUnarioChamadaFuncao
+  | Int #parcelaUnarioInteiro
+  | Real #parcelaUnarioReal
+  | LeftParen expressao RightParen #parcelaUnarioParenteses
   ;
 
 parcela_nao_unario
-  : & Ident sub_identificador* dimensao*
-  | String;
+  : Address Ident sub_identificador* dimensao*
+  | String
   ;
 
 outras_parcelas
-  : % parcela outras_parcelas
-  | // e
+  : Mod parcela outras_parcelas
+  | // ε
   ;
 
 exp_relacional
@@ -92,7 +133,7 @@ exp_relacional
 
 op_opcional
   : op_relacional exp_aritmetica
-  | // e
+  | // ε
   ;
 
 op_relacional
@@ -104,8 +145,22 @@ op_relacional
   | Lesser
   ;
 
+
 expressao
   : termo_logico outros_termos_logicos
+  ;
+
+lista_expressao
+  : expressao mais_expressao*
+  ;
+
+mais_constantes
+  : Separator constantes
+  ;
+
+op_nao
+  : Not
+  | // ε
   ;
 
 termo_logico
@@ -114,23 +169,20 @@ termo_logico
 
 outros_termos_logicos
   : Or termo_logico outros_termos_logicos
-  | // e
+  | // ε
   ;
 
 outros_fatores_logicos
   : And fator_logico outros_fatores_logicos
-  | // e
+  | // ε
   ;
-  
 
-/*
-expressao
-  : expressao Or expressao
-  | expressao And expressao
-  | expressao Mult expressao
-  | expressao Div expressao
-  | expresaso Mod expressao
-  | expressao Plus expressao
-  | expressao Minus expressao
+fator_logico
+  : op_nao parcela_logica
   ;
-*/
+
+parcela_logica
+  : True
+  | False
+  | exp_relacional
+  ;

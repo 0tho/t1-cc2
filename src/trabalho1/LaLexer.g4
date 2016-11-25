@@ -1,4 +1,4 @@
-lexer grammar La;
+lexer grammar LaLexer;
 
 BeginAlgorithm: 'algoritmo';
 EndAlgorithm: 'fim_algoritmo';

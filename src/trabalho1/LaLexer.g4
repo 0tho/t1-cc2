@@ -83,9 +83,9 @@ fragment NotDigit: [a-zA-Z_];
 
 fragment Digit: [0-9];
 
-Comment: '{' ~[}\r\n]*? '}' -> skip;
+Comment: '{' ~[}]*? '}' -> skip;
 
-WrongComment: '{' ~[}\r\n]*?;
+WrongComment: '{' ~[}]*;
 
 Whitespace: [ \t]+ -> skip;
 

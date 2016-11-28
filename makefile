@@ -17,7 +17,7 @@ ARG4=$(TEMP)
 ARG5=casosDeTeste
 ARG6="408514, 407933, 408000, 386227"
 # sintatico, semantico, gerador, tudo
-ARG7=semantico
+ARG7=sintatico
 
 .PHONY: build
 

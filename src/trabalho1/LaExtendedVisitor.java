@@ -390,4 +390,11 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     return null;
   }
 
+  @Override
+  public Void visitExpressao(LaParser.ExpressaoContext ctx) {
+    Lac.errorBuffer.println(ctx.getText() + "/" + LaType.getType(ctx));
+
+    return null;
+  }
+
  }

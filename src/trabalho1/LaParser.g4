@@ -109,21 +109,21 @@ outros_fatores
   ;
 
 parcela
-  : op_unario parcela_unario
-  | parcela_nao_unario
+  : op_unario parcela_unario #parcelaParcelaUnario
+  | parcela_nao_unario       #parcelaParcelaNaoUnario
   ;
 
 parcela_unario
   : Pointer? Ident sub_identificador* lista_dimensao #parcelaUnarioVariavel
-  | Ident LeftParen lista_expressao RightParen  #parcelaUnarioChamadaFuncao
-  | Int                                         #parcelaUnarioInteiro
-  | Real                                        #parcelaUnarioReal
-  | LeftParen expressao RightParen              #parcelaUnarioParenteses
+  | Ident LeftParen lista_expressao RightParen       #parcelaUnarioChamadaFuncao
+  | Int                                              #parcelaUnarioInteiro
+  | Real                                             #parcelaUnarioReal
+  | LeftParen expressao RightParen                   #parcelaUnarioParenteses
   ;
 
 parcela_nao_unario
-  : Address Ident sub_identificador* lista_dimensao
-  | String
+  : Address Ident sub_identificador* lista_dimensao  #parcelaNaoUnarioVetor
+  | String                                           #parcelaNaoUnarioString
   ;
 
 outras_parcelas
@@ -186,7 +186,7 @@ fator_logico
   ;
 
 parcela_logica
-  : True
-  | False
-  | exp_relacional
+  : True           #parcelaLogicaTrue
+  | False          #parcelaLogicaFalse
+  | exp_relacional #parcelaLogicaExpRelacional
   ;

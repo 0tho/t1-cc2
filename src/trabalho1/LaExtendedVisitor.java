@@ -1,7 +1,8 @@
 /*
 TODO:
-  Traverse tree in logical commands
   check if sub identifiers are "declared"
+  match functions
+  check attributions
 */
 package trabalho1;
 
@@ -71,6 +72,8 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
       pilha.peek().put(simbolo.getNome(), simbolo);
     } else {
       Lac.errorBuffer.println(Mensagens.erroIdentificadorJaDeclarado( simbolo.getLinha(), simbolo.getNome() ));
+      Simbolo sim = pegarSimbolo(simbolo.getNome());
+      //Lac.errorBuffer.println(Integer.toString(sim.getLinha()));
     }
   }
 
@@ -81,6 +84,19 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
         HashMap<String, Simbolo> t = pilha.get(i);
         if ( t.containsKey(id.getText()) ) {
           return t.get(id.getText());
+        }
+      }
+    }
+    return new Simbolo("ERRO", "ERRO", -1, LacClass.PARSER);
+  }
+
+  private Simbolo pegarSimbolo(String id) {
+    if ( pilhaContemSimbolo(id) ) {
+      int i;
+      for( i = pilha.size() -1; i >= 0; i--) {
+        HashMap<String, Simbolo> t = pilha.get(i);
+        if ( t.containsKey(id) ) {
+          return t.get(id);
         }
       }
     }
@@ -190,7 +206,7 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
   @Override
   public Integer visitDimensao(LaParser.DimensaoContext ctx) {
     return 7;
-    // return visit(ctx.exp_aritmetica());
+    //TODO return visit(ctx.exp_aritmetica());
   }
 
   @Override
@@ -263,7 +279,6 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
       checarSePilhaContemSimbolo(s);
     }
 
-    visitChildren(ctx);
     return null;
   }
 
@@ -320,7 +335,6 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     }
     pilha.pop();
 
-    visitChildren(ctx);
     return null;
   }
 
@@ -344,7 +358,7 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
       parametros.add(simbolo);
     }
 
-
+    visitChildren(ctx);
     return parametros;
   }
   @Override
@@ -377,7 +391,13 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     Simbolo simbolo = new Simbolo( ident.getText(), "undefined", ident.getLine(), LacClass.PARSER );
     simbolo.setDimensoes(dimensoes);
 
-    visitChildren(ctx);
+    List<LaParser.Sub_identificadorContext> subs = ctx.sub_identificador();
+    if( subs != null && subs.size() > 0 ) {
+      for( LaParser.Sub_identificadorContext sub : subs ) {
+        simbolo.addSimbolo( (Simbolo) visit(sub) );
+      }
+    }
+
     return simbolo;
   }
 
@@ -438,17 +458,27 @@ Expressao type getter
 
   public Tipo getType(LaParser.ExpressaoContext ctx) {
     Tipo ret = getType(ctx.termo_logico());
-    if ( ctx.outros_termos_logicos().termo_logico() != null ) {
-      return tipos.get(LOGICO);
+    List<LaParser.Outros_termos_logicosContext> outros_termos_logicos = ctx.outros_termos_logicos();
+    if( outros_termos_logicos != null && outros_termos_logicos.size() > 0 ) {
+      ret = tipos.get(LOGICO);
+      for (LaParser.Outros_termos_logicosContext outro : outros_termos_logicos) {
+        getType(outro.termo_logico());
+      }
     }
+
     return ret;
   }
 
   public Tipo getType(LaParser.Termo_logicoContext ctx) {
     Tipo ret = getType(ctx.fator_logico());
-    if( ctx.outros_fatores_logicos().fator_logico() != null ) {
-      return tipos.get(LOGICO);
+    List<LaParser.Outros_fatores_logicosContext> outros_fatores_logicos = ctx.outros_fatores_logicos();
+    if ( outros_fatores_logicos != null && outros_fatores_logicos.size() > 0 ) {
+      ret = tipos.get(LOGICO);
+      for ( LaParser.Outros_fatores_logicosContext outro : outros_fatores_logicos ) {
+        getType(outro.fator_logico());
+      }
     }
+
     return ret;
   }
 
@@ -480,31 +510,24 @@ Expressao type getter
 
   public Tipo getType(LaParser.Exp_relacionalContext ctx) {
     Tipo ret = getType(ctx.exp_aritmetica());
-    if ( ctx.op_opcional().op_relacional() != null ) {
-      return tipos.get(LOGICO);
+    if ( ctx.op_opcional() != null ) {
+      ret = tipos.get(LOGICO);
+      getType(ctx.op_opcional().exp_aritmetica());
     }
     return ret;
   }
 
   public Tipo getType(LaParser.Exp_aritmeticaContext ctx) {
     Tipo ret = getType(ctx.termo());
-    if( ctx.outros_termos().termo() != null ) {
+    List<LaParser.Outros_termosContext> outros_termos = ctx.outros_termos();
+    if( outros_termos != null && outros_termos.size() > 0 ) {
       boolean isInteiro = true;
 
-      ArrayList<LaParser.TermoContext> termos = new ArrayList<LaParser.TermoContext>();
-      termos.add(ctx.termo());
-      LaParser.Outros_termosContext moreCtx = ctx.outros_termos();
-
-      while( moreCtx.termo() != null ) {
-        termos.add(moreCtx.termo());
-        moreCtx = moreCtx.outros_termos();
-      }
-
       ArrayList<Tipo> expTipos = new ArrayList<Tipo>();
-      for ( LaParser.TermoContext cctx : termos ) {
-        Tipo t = getType(cctx);
+      for( LaParser.Outros_termosContext outro : outros_termos) {
+        Tipo t = getType(outro.termo());
         expTipos.add(t);
-        if(t != null && t.getNome() != INTEIRO ) {
+        if(t != null && t.getNome() != INTEIRO) {
           isInteiro = false;
         }
       }
@@ -520,23 +543,15 @@ Expressao type getter
 
   public Tipo getType(LaParser.TermoContext ctx ) {
     Tipo ret = getType(ctx.fator());
-    if ( ctx.outros_fatores().fator() != null ) {
+    List<LaParser.Outros_fatoresContext> outros_fatores = ctx.outros_fatores();
+    if ( outros_fatores != null && outros_fatores.size() > 0 ) {
       boolean isInteiro = true;
 
-      ArrayList<LaParser.FatorContext> fatores = new ArrayList<LaParser.FatorContext>();
-      fatores.add(ctx.fator());
-      LaParser.Outros_fatoresContext moreCtx = ctx.outros_fatores();
-
-      while( moreCtx.fator() != null ) {
-        fatores.add(moreCtx.fator());
-        moreCtx = moreCtx.outros_fatores();
-      }
-
       ArrayList<Tipo> expTipos = new ArrayList<Tipo>();
-      for ( LaParser.FatorContext cctx : fatores ) {
-        Tipo t = getType(cctx);
+      for( LaParser.Outros_fatoresContext outro : outros_fatores) {
+        Tipo t = getType(outro.fator());
         expTipos.add(t);
-        if(t != null && t.getNome() != INTEIRO ) {
+        if(t != null && t.getNome() != INTEIRO) {
           isInteiro = false;
         }
       }
@@ -552,8 +567,12 @@ Expressao type getter
 
   public Tipo getType(LaParser.FatorContext ctx) {
     Tipo ret = getType(ctx.parcela());
-    if ( ctx.outras_parcelas().parcela() != null ) {
-      return tipos.get(INTEIRO);
+    List<LaParser.Outras_parcelasContext> outras_parcelas = ctx.outras_parcelas();
+    if ( outras_parcelas != null && outras_parcelas.size() > 0 ) {
+      ret = tipos.get(INTEIRO);
+      for( LaParser.Outras_parcelasContext outra : outras_parcelas ) {
+        getType(outra.parcela());
+      }
     }
     return ret;
   }

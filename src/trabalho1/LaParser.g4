@@ -73,11 +73,10 @@ mais_expressao: Separator expressao;
 
 op_unario
   : Minus
-  | // ε
   ;
 
 exp_aritmetica
-  : termo outros_termos
+  : termo outros_termos*
   ;
 
 op_multiplicacao
@@ -91,26 +90,24 @@ op_adicao
   ;
 
 termo
-  : fator outros_fatores
+  : fator outros_fatores*
   ;
 
 outros_termos
-  : op_adicao termo outros_termos
-  | // ε
+  : op_adicao termo
   ;
 
 fator
-  : parcela outras_parcelas
+  : parcela outras_parcelas*
   ;
 
 outros_fatores
-  : op_multiplicacao fator outros_fatores
-  | // ε
+  : op_multiplicacao fator
   ;
 
 parcela
-  : op_unario parcela_unario #parcelaParcelaUnario
-  | parcela_nao_unario       #parcelaParcelaNaoUnario
+  : op_unario? parcela_unario #parcelaParcelaUnario
+  | parcela_nao_unario        #parcelaParcelaNaoUnario
   ;
 
 parcela_unario
@@ -127,17 +124,15 @@ parcela_nao_unario
   ;
 
 outras_parcelas
-  : Mod parcela outras_parcelas
-  | // ε
+  : Mod parcela
   ;
 
 exp_relacional
-  : exp_aritmetica op_opcional
+  : exp_aritmetica op_opcional?
   ;
 
 op_opcional
   : op_relacional exp_aritmetica
-  | // ε
   ;
 
 op_relacional
@@ -151,7 +146,7 @@ op_relacional
 
 
 expressao
-  : termo_logico outros_termos_logicos
+  : termo_logico outros_termos_logicos*
   ;
 
 lista_expressao
@@ -164,25 +159,22 @@ mais_constantes
 
 op_nao
   : Not
-  | // ε
   ;
 
 termo_logico
-  : fator_logico outros_fatores_logicos
+  : fator_logico outros_fatores_logicos*
   ;
 
 outros_termos_logicos
-  : Or termo_logico outros_termos_logicos
-  | // ε
+  : Or termo_logico
   ;
 
 outros_fatores_logicos
-  : And fator_logico outros_fatores_logicos
-  | // ε
+  : And fator_logico
   ;
 
 fator_logico
-  : op_nao parcela_logica
+  : op_nao? parcela_logica
   ;
 
 parcela_logica

@@ -45,4 +45,9 @@ public class Tipo {
     return false;
   }
 
+  @Override
+  public String toString() {
+    return "TIPO: " + getNome() + (referencia != null ? referencia : "");
+  }
+
 }

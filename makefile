@@ -17,15 +17,23 @@ ARG4=$(TEMP)
 ARG5=casosDeTeste
 ARG6="408514, 407933, 408000, 386227"
 # sintatico, semantico, gerador, tudo
-ARG7=sintatico
+TEST=tudo
+
+# Argumentos para teste caso a caso
+CASE=1
 
 .PHONY: build
 
 default: build test
 
 test:
-	mkdir -p $(TEMP)
-	java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) $(ARG7)
+	@mkdir -p $(TEMP)
+	@java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) $(TEST)
+
+
+testn:
+	@mkdir -p $(TEMP)
+	@java -jar $(ARG1) $(ARG2) $(ARG3) $(ARG4)/ $(ARG5) $(ARG6) $(TEST) $(CASE)
 
 build: clean
 	mkdir -p $(BUILD)

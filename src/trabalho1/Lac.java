@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package trabalho1;
 
 import java.io.InputStream;
@@ -55,13 +51,15 @@ public class Lac {
       LaErrorStrategy errorStrategy = new LaErrorStrategy();
       parser.setErrorHandler(errorStrategy);
 
-      LaExtendedVisitor visitor = new LaExtendedVisitor();
+      LaSemanticVisitor visitor = new LaSemanticVisitor();
+      LaCGeneratorVisitor generator = new LaCGeneratorVisitor();
       ParseTree tree;
 
 
       try {
         tree = parser.programa();
         visitor.visit(tree);
+        generator.visit(tree);
       }
       catch ( ParseCancellationException e ) {
 

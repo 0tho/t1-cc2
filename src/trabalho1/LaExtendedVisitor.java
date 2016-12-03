@@ -36,6 +36,14 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     scopeCanReturn = false;
   }
 
+  private void printStack () {
+    for ( HashMap<String, Simbolo> tabela : pilha ) {
+      Lac.errorBuffer.println("-----");
+      Lac.errorBuffer.println(tabela.keySet().toString());
+
+    }
+  }
+
   private boolean pilhaContemSimbolo(String simboloId) {
     for( HashMap<String, Simbolo> tabela : pilha ) {
       if ( tabela.containsKey(simboloId) ) {
@@ -100,6 +108,7 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
         }
       }
     }
+
     return new Simbolo("ERRO", "ERRO", -1, LacClass.PARSER);
   }
 
@@ -272,6 +281,50 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
   }
 
   @Override
+  public Void visitCmdAssign(LaParser.CmdAssignContext ctx) {
+    Object pointer = ctx.Pointer();
+    Token ident = ctx.Ident().getSymbol();
+    String text = (pointer != null ? "^" : "") + ident.getText();
+
+    // Lac.errorBuffer.println(ident.getText());
+
+    if ( pilhaContemSimbolo( ident.getText() ) ) {
+      ArrayList<Simbolo> subIdents = new ArrayList<Simbolo>();
+      Simbolo sim = pegarSimbolo(ident.getText());
+      Tipo simType = tipos.get(sim.getTipo());
+      Tipo type = getType(ctx.expressao());
+
+      for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
+        Simbolo subSim = (Simbolo) visit(sub);
+        text += "." + subSim.getNome();
+        if ( sim.temSimbolo(subSim)) {
+        }
+      }
+
+      if( !simType.getNome().equals(type.getNome())) {
+        Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+      }
+    } else {
+      //TODO
+      // String sub = null ;
+      // if ( sub != null ) {
+      //   Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), ident.getText()+sub );
+      // } else {
+      // }
+      Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), ident.getText() ));
+    }
+
+    visitChildren(ctx);
+    return null;
+  }
+
+  @Override
+  public Void visitCmdCall(LaParser.CmdCallContext ctx) {
+    visitChildren(ctx);
+    return null;
+  }
+
+  @Override
   public Void visitCmdRead(LaParser.CmdReadContext ctx) {
     ArrayList<Simbolo> listaIdentificadores = (ArrayList<Simbolo>) visit(ctx.lista_identificador());
 
@@ -300,10 +353,12 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     String simboloId = procedimentoTk.getText();
     int linha = procedimentoTk.getLine();
     Simbolo procedimento = new Simbolo(simboloId, "", linha, LacClass.PROCEDIMENTO);
-    adicionarSimbolo(procedimento);
 
+    adicionarSimbolo(procedimento);
     pilha.push( new HashMap<String, Simbolo>() );
-    visit(ctx.lista_parametros());
+    ArrayList<Simbolo> parametros = (ArrayList<Simbolo>) visit(ctx.lista_parametros());
+    procedimento.addSimbolos(parametros);
+
     for( LaParser.Declaracao_localContext local : ctx.declaracao_local()) {
       visit(local);
     }
@@ -323,10 +378,12 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     int linha = funcaoTk.getLine();
     String tipoFuncao = ctx.tipo_estendido().getText();
     Simbolo funcao = new Simbolo(simboloId, tipoFuncao, linha, LacClass.FUNCAO);
-    adicionarSimbolo(funcao);
 
+    adicionarSimbolo(funcao);
     pilha.push( new HashMap<String, Simbolo>() );
-    visit(ctx.lista_parametros());
+    ArrayList<Simbolo> parametros = (ArrayList<Simbolo>) visit(ctx.lista_parametros());
+    funcao.addSimbolos(parametros);
+
     for( LaParser.Declaracao_localContext local : ctx.declaracao_local()) {
       visit(local);
     }
@@ -362,7 +419,7 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     return parametros;
   }
   @Override
-  public Void visitLista_parametros(LaParser.Lista_parametrosContext ctx) {
+  public ArrayList<Simbolo> visitLista_parametros(LaParser.Lista_parametrosContext ctx) {
     ArrayList<Simbolo> parametros = (ArrayList<Simbolo>) visit(ctx.parametro());
 
     for( LaParser.Mais_parametroContext mais_parametro : ctx.mais_parametro()) {
@@ -372,7 +429,7 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
     }
 
     adicionarSimbolos(parametros);
-    return null;
+    return parametros;
   }
 
   @Override
@@ -417,8 +474,6 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
 
   @Override
   public Void visitParcelaUnarioChamadaFuncao(LaParser.ParcelaUnarioChamadaFuncaoContext ctx) {
-    Token ident = ctx.Ident().getSymbol();
-    checarSePilhaContemSimbolo(ident);
     visitChildren(ctx);
     return null;
   }
@@ -437,24 +492,28 @@ public class LaExtendedVisitor extends LaParserBaseVisitor<Object> {
   }
 
   @Override
-  public Void visitExpressao(LaParser.ExpressaoContext ctx) {
+  public Tipo visitExpressao(LaParser.ExpressaoContext ctx) {
     //Lac.errorBuffer.println(ctx.getText() + "/" + getType(ctx));
     Tipo type = getType(ctx);
 
-    return null;
+    return type;
   }
 
 /*
 Expressao type getter
 */
 
-  // public Tipo getType(LaParser.Lista_expressaoContext ctx) {
-  //   return "NU";
-  // }
-  //
-  // public Tipo getType(LaParser.Mais_expressaoContext ctx) {
-  //   return "NOT";
-  // }
+  public ArrayList<Tipo> getType(LaParser.Lista_expressaoContext ctx) {
+    ArrayList<Tipo> listaTipos = new ArrayList<Tipo>();
+
+    listaTipos.add( (Tipo) visit(ctx.expressao()));
+
+    for( LaParser.Mais_expressaoContext mais_expressao : ctx.mais_expressao()) {
+      listaTipos.add( (Tipo) visit(mais_expressao.expressao()));
+    }
+
+    return listaTipos;
+  }
 
   public Tipo getType(LaParser.ExpressaoContext ctx) {
     Tipo ret = getType(ctx.termo_logico());
@@ -616,10 +675,40 @@ Expressao type getter
   }
 
   public Tipo getType(LaParser.ParcelaUnarioVariavelContext ctx) {
+    String id = ctx.Ident().getSymbol().getText();
     return tipos.get(pegarSimbolo(ctx.Ident().getSymbol()).getTipo());
   }
 
   public Tipo getType(LaParser.ParcelaUnarioChamadaFuncaoContext ctx) {
+    Token ident = ctx.Ident().getSymbol();
+
+    if ( checarSePilhaContemSimbolo( ident ) ) {
+      ArrayList<Tipo> argumentos = (ArrayList<Tipo>) getType(ctx.lista_expressao());
+      Simbolo sim = pegarSimbolo(ident.getText());
+
+      ArrayList<Simbolo> assinatura = sim.getSimbolos();
+
+      if ( argumentos == null && assinatura != null || assinatura == null && argumentos != null ) {
+
+        Lac.errorBuffer.println(Mensagens.erroIncompatibilidadeDeParametros(ident.getLine(), ident.getText()));
+      } else if ( argumentos == null && assinatura == null ) {
+
+      } else if( argumentos.size() != assinatura.size() ) {
+        Lac.errorBuffer.println(Mensagens.erroIncompatibilidadeDeParametros(ident.getLine(), ident.getText()));
+      } else {
+        for( int i = 0; i < argumentos.size(); i++ ) {
+          Tipo t1 = argumentos.get(i);
+          Tipo t2 = tipos.get(assinatura.get(i).getTipo());
+          // Lac.errorBuffer.println( t1.toString() );
+
+          if( !t1.getNome().equals(t2.getNome()) ) {
+            Lac.errorBuffer.println(Mensagens.erroIncompatibilidadeDeParametros(ident.getLine(), ident.getText()));
+            break;
+          }
+        }
+      }
+    }
+
     return tipos.get(pegarSimbolo(ctx.Ident().getSymbol()).getTipo());
   }
 

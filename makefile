@@ -10,7 +10,7 @@ PACKAGE=trabalho1
 
 ANTLR=$(LIBRARIES)/antlr-4.5.3-complete.jar
 
-ARG1=corretorAutomatico/CorretorTrabalho1-plus.jar
+ARG1=corretorAutomatico/CorretorTrabalho1.jar
 ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).Lac"
 ARG3=gcc
 ARG4=$(TEMP)

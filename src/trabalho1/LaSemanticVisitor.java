@@ -309,7 +309,9 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
       }
 
       if( !simType.getNome().equals(type.getNome())) {
-        Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+        if ( !(simType.getNome().equals(REAL) && type.getNome().equals(INTEIRO))) {
+          Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+        }
       }
     } else {
       //TODO
@@ -584,25 +586,41 @@ Expressao type getter
   }
 
   public Tipo getType(LaParser.Exp_aritmeticaContext ctx) {
-    Tipo ret = getType(ctx.termo());
+    Tipo termo = getType(ctx.termo());
+    Tipo ret = termo;
     List<LaParser.Outros_termosContext> outros_termos = ctx.outros_termos();
     if( outros_termos != null && outros_termos.size() > 0 ) {
       boolean isInteiro = true;
 
       ArrayList<Tipo> expTipos = new ArrayList<Tipo>();
+
       for( LaParser.Outros_termosContext outro : outros_termos) {
         Tipo t = getType(outro.termo());
         expTipos.add(t);
-        if(t != null && t.getNome() != INTEIRO) {
-          isInteiro = false;
-        }
       }
 
-      if ( isInteiro ) {
-        return tipos.get(INTEIRO);
+      // se termo = literal -> literal
+      // se termo = real -> real
+      // se termo = logico -> ERRO
+      // se termo = inteiro -> inteiro | real
+      if ( termo.getNome() == LOGICO ) {
+        Lac.errorBuffer.println("TENTANDO SOMAR VALORES LOGICOS");
+      } else if ( termo.getNome() == LITERAL ) {
+        for( Tipo t : expTipos) {
+          if ( t.getNome() != LITERAL ) {
+            // Lac.errorBuffer.println("TENTANDO SOMAR VALOR DIFERENTE DE LITERAL EM LITERAL");
+          }
+        }
+      } else if ( termo.getNome() == INTEIRO || termo.getNome() == REAL ) {
+        for( Tipo t : expTipos) {
+          if ( t != null && t.getNome() == REAL ) {
+            ret = tipos.get(REAL);
+          }
+        }
       } else {
-        return tipos.get(REAL);
+        Lac.errorBuffer.println("NÂO SEI SOMAR ESSE TIPO:" + termo.getNome());
       }
+
     }
     return ret;
   }
@@ -682,8 +700,17 @@ Expressao type getter
   }
 
   public Tipo getType(LaParser.ParcelaUnarioVariavelContext ctx) {
-    String id = ctx.Ident().getSymbol().getText();
-    return tipos.get(pegarSimbolo(ctx.Ident().getSymbol()).getTipo());
+    Token tk = ctx.Ident().getSymbol();
+    String id = tk.getText();
+    Simbolo sim = pegarSimbolo(tk);
+    Tipo ret = tipos.get(sim.getTipo());
+    if ( ret != null && !ret.isSimple() ) {
+      for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
+        Simbolo subSim = (Simbolo) visit(sub);
+        ret = tipos.get(subSim.getTipo());
+      }
+    }
+    return ret;
   }
 
   public Tipo getType(LaParser.ParcelaUnarioChamadaFuncaoContext ctx) {

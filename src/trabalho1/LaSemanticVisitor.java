@@ -297,15 +297,18 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
       Tipo type = getType(ctx.expressao());
 
       for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
-        Simbolo subSim = (Simbolo) visit(sub);
-        text += "." + subSim.getNome();
+        Simbolo subId = (Simbolo) visit(sub);
+
+        text += "." + subId.getNome();
         // Lac.errorBuffer.println(simType.getNome() + " " + subSim.getNome());
         // ArrayList<Simbolo> sims = simType.getSimbolos();
         // for( Simbolo s: sims ) Lac.errorBuffer.println(s.getNome());
-        if ( !simType.temSimbolo(subSim.getNome())) {
+        if ( !simType.temSimbolo(subId.getNome())) {
           Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), text ));
+        } else {
+          Simbolo subSim = simType.getSimbolo(subId.getNome());
+          simType = tipos.get(subSim.getTipo());
         }
-        simType = tipos.get(subSim.getTipo());
       }
 
       ArrayList<Integer> dims = sim.getDimensoes();

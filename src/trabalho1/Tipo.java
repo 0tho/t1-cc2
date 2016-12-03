@@ -45,6 +45,15 @@ public class Tipo {
     return false;
   }
 
+  public Simbolo getSimbolo(String nome) {
+    for( Simbolo s: simbolos) {
+      if (s.getNome().equals(nome) ) {
+        return s;
+      }
+    }
+    return null;
+  }
+
   public ArrayList<Simbolo> getSimbolos () {
     return simbolos;
   }

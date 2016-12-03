@@ -307,10 +307,11 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
           text+="[" + i.toString() + "]";
         }
       }
-
-      if( !simType.getNome().equals(type.getNome())) {
-        if ( !(simType.getNome().equals(REAL) && type.getNome().equals(INTEIRO))) {
-          Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+      if ( type != null ) {
+        if( !simType.getNome().equals(type.getNome())) {
+          if ( !(simType.getNome().equals(REAL) && type.getNome().equals(INTEIRO))) {
+            Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+          }
         }
       }
     } else {
@@ -615,6 +616,9 @@ Expressao type getter
         for( Tipo t : expTipos) {
           if ( t != null && t.getNome() == REAL ) {
             ret = tipos.get(REAL);
+          }
+          if ( t != null && t.getNome() == LITERAL ) {
+            ret = tipos.get(LITERAL);
           }
         }
       } else {

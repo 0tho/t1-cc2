@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Tipo {
   private String nome;
   private ArrayList<Simbolo> simbolos = new ArrayList<Simbolo>();
-  private String referencia;
+  private String referencia = null;
 
   public Tipo(String nome) {
     this.nome = nome;
@@ -36,13 +36,17 @@ public class Tipo {
     }
   }
 
-  public boolean hasSimbolo(String nome) {
+  public boolean temSimbolo(String nome) {
     for( Simbolo s: simbolos) {
-      if (s.getNome() == nome ) {
+      if (s.getNome().equals(nome) ) {
         return true;
       }
     }
     return false;
+  }
+
+  public ArrayList<Simbolo> getSimbolos () {
+    return simbolos;
   }
 
   @Override

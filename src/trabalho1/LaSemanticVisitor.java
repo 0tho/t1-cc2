@@ -299,8 +299,13 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
       for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
         Simbolo subSim = (Simbolo) visit(sub);
         text += "." + subSim.getNome();
-        if ( sim.temSimbolo(subSim)) {
+        // Lac.errorBuffer.println(simType.getNome() + " " + subSim.getNome());
+        // ArrayList<Simbolo> sims = simType.getSimbolos();
+        // for( Simbolo s: sims ) Lac.errorBuffer.println(s.getNome());
+        if ( !simType.temSimbolo(subSim.getNome())) {
+          Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), text ));
         }
+        simType = tipos.get(subSim.getTipo());
       }
 
       ArrayList<Integer> dims = sim.getDimensoes();
@@ -309,21 +314,22 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
           text+="[" + i.toString() + "]";
         }
       }
-      if ( type != null ) {
+      if ( type != null && simType != null) {
         if( !simType.getNome().equals(type.getNome())) {
           if ( !(simType.getNome().equals(REAL) && type.getNome().equals(INTEIRO))) {
-            Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text));
+            //Lac.errorBuffer.println(simType.getNome() + type.getNome());
+            Lac.errorBuffer.println(Mensagens.erroAtribuicaoIncompativel( ident.getLine(), text ));
           }
         }
       }
     } else {
-      //TODO
-      // String sub = null ;
-      // if ( sub != null ) {
-      //   Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), ident.getText()+sub );
-      // } else {
-      // }
-      Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), ident.getText() ));
+      for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
+        Simbolo subSim = (Simbolo) visit(sub);
+
+        text += "." + subSim.getNome();
+
+      }
+      Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( ident.getLine(), text ));
     }
 
     visitChildren(ctx);
@@ -340,8 +346,19 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
   public Void visitCmdRead(LaParser.CmdReadContext ctx) {
     ArrayList<Simbolo> listaIdentificadores = (ArrayList<Simbolo>) visit(ctx.lista_identificador());
 
-    for( Simbolo s : listaIdentificadores ) {
-      checarSePilhaContemSimbolo(s);
+    for( Simbolo id : listaIdentificadores ) {
+      if ( checarSePilhaContemSimbolo(id) ) {
+          Simbolo s = pegarSimbolo(id.getNome());
+          Tipo t = tipos.get(s.getTipo());
+          //Lac.errorBuffer.println();
+          String text = s.getNome();
+          for ( Simbolo sub : id.getSimbolos() ) {
+            text += "."+sub.getNome();
+            if ( t != null && !t.temSimbolo(sub.getNome()) ) {
+              Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado( id.getLinha(), text ));
+            }
+          }
+      }
     }
 
     return null;
@@ -710,13 +727,24 @@ Expressao type getter
   public Tipo getType(LaParser.ParcelaUnarioVariavelContext ctx) {
     Token tk = ctx.Ident().getSymbol();
     String id = tk.getText();
-    Simbolo sim = pegarSimbolo(tk);
-    Tipo ret = tipos.get(sim.getTipo());
-    if ( ret != null && !ret.isSimple() ) {
+    Tipo ret;
+    if ( pilhaContemSimbolo(tk.getText()) ) {
+      Simbolo sim = pegarSimbolo(tk);
+      ret = tipos.get(sim.getTipo());
+      if ( ret != null && !ret.isSimple() ) {
+        for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
+          Simbolo subSim = (Simbolo) visit(sub);
+          ret = tipos.get(subSim.getTipo());
+        }
+      }
+    } else {
+      ret = tipos.get(ERRO);
+      String text = tk.getText();
       for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
         Simbolo subSim = (Simbolo) visit(sub);
-        ret = tipos.get(subSim.getTipo());
+        text += "."+subSim.getNome();
       }
+      Lac.errorBuffer.println(Mensagens.erroIdentificadorNaoDeclarado(tk.getLine() , text ));
     }
     return ret;
   }

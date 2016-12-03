@@ -214,7 +214,7 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
 
   @Override
   public Integer visitDimensao(LaParser.DimensaoContext ctx) {
-    return 7;
+    return 0;
     //TODO return visit(ctx.exp_aritmetica());
   }
 
@@ -298,6 +298,13 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
         Simbolo subSim = (Simbolo) visit(sub);
         text += "." + subSim.getNome();
         if ( sim.temSimbolo(subSim)) {
+        }
+      }
+
+      ArrayList<Integer> dims = sim.getDimensoes();
+      if( dims != null ) {
+        for( Integer i : dims ) {
+          text+="[" + i.toString() + "]";
         }
       }
 

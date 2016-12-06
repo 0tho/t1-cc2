@@ -56,7 +56,7 @@ public class Geradores {
 						.append(Geradores.leaveEscope());
 		return finalCode;
 	}
-	
+
 	public static String doWhileLoop(String condition, String code) {
 		String finalCode = "do "
 						.append(Geradores.enterScope())
@@ -67,7 +67,7 @@ public class Geradores {
 						.append(");");
 		return finalCode;
 	}
-	
+
 	public static String forLoop(String countVariable, String begin, String end, String code) {
 		String finalCode = "for ("
 						.append(countVariable)
@@ -94,7 +94,7 @@ public class Geradores {
         if (pointer) {
         	finalCode.append("*");
         }
-        		 
+
         finalCode.append(" = ")
         		 .append(var);
 

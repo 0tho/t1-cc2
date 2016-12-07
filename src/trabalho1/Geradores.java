@@ -18,9 +18,38 @@ public class Geradores {
 		return "\n}";
 	}
 
+	public static String function(String functionType, String functionName, ArrayList<String> types, ArrayList<String> parameters, String code) {
+		String finalCode = "";
+
+		if (functionType.equals("") || !functionType) {
+			functionType = "void";
+		}
+
+		finalCode.append(functionType)
+				 .append(" ")
+				 .append(functionName)
+				 .append(" (");
+
+		if (types.size() > 0) {
+			for (int i=0; i<types.size(); i++) {
+				finalCode.append(types.get(i)+" "+parameters.get(i));
+
+				if (i < types.size()-1) {
+					finalCode.append(", ");
+				}
+			}
+			finalCode.append(") {\n");
+		}
+
+		finalCode.append(code);
+				 .append("\n}");
+
+		return finalCode;
+	}
+
 	public static String whileLoop(String condition, String code) {
 		String finalCode = "while ("
-						.append(normalize(condition))
+						.append(condition)
 						.append(") ")
 						.append(Geradores.enterScope())
 						.append(code)
@@ -34,16 +63,13 @@ public class Geradores {
 						.append(code)
 						.append(Geradores.leaveEscope())
 						.append("while (")
-						.append(normalize(condition))
+						.append(condition)
 						.append(");");
 		return finalCode;
 	}
 	
 	public static String forLoop(String countVariable, String begin, String end, String code) {
-		String finalCode = "int "
-						.append(countVariable)
-						.append(";\n")
-						.append("for (")
+		String finalCode = "for ("
 						.append(countVariable)
 						.append("=")
 						.append(begin)
@@ -61,28 +87,56 @@ public class Geradores {
 		return finalCode;
 	}
 
-	public static String attribution(String var, String exp) {
+	public static void declaration(String var, String type, String size, boolean pointer) {
         String finalCode = "";
-        finalCode.append(var)
-        		 .append(" = ")
-        		 .append(normalize(exp))
-        		 .append(";");
+        finalCode.append(makeTypeDecl(type));
+
+        if (pointer) {
+        	finalCode.append("*");
+        }
         		 
+        finalCode.append(" = ")
+        		 .append(var);
+
+        if (size.length() > 0) {
+        	finalCode.append("[")
+        			 .append(size)
+        			 .append("]");
+        }
+        finalCode.append(";");
+
         return finalCode;
     }
 
-	public static String normalize(String exp) {
-        return exp.replace("=", "==")
-            	  .replace("ou", "||")
-                  .replace("e", "&&")
-                  .replace("nao", "!")
-                  .replace("verdadeiro", "1")
-                  .replace("falso", "0");
+    private static String makeTypeDecl(String type) {
+        switch (type) {
+            case "inteiro":
+                return = "int";
+            case "real":
+                return = "float";
+            case "logico":
+                return = "int";
+            case "literal":
+                return = "char";
+            default:
+                return = "";
+        }
     }
 
-	public static String method() {
-		return "";
-	}
+	public static String attribution(String var, String exp, pointer) {
+        String finalCode = "";
+
+        if (pointer) {
+        	finalCode.append("*");
+        }
+
+        finalCode.append(var)
+        		 .append(" = ")
+        		 .append(exp)
+        		 .append(";");
+
+        return finalCode;
+    }
 
 	private static String makeType(String type) {
         switch (type) {
@@ -98,6 +152,10 @@ public class Geradores {
                 return = "";
         }
     }
+
+    public static String method() {
+		return "";
+	}
 
 	public static String write(String text, ArrayList<String> variables) {
 		String finalCode = "";

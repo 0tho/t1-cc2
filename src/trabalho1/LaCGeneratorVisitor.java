@@ -48,6 +48,71 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
+  public String visitTipo_basico(LaParser.DeclareTipo_basicoContext ctx) {
+        switch (tipo) {
+            case "inteiro":
+                tipo = "int";
+                break;
+            case "real":
+                tipo = "float";
+                break;
+            case "logico":
+                tipo = "int";
+                break;
+            case "literal":
+                tipo = "char";
+                break;
+            default:
+                tipo = "";
+        }
+
+      return tipo
+    }
+
+  @Override
+  public String visitDeclareTipo(LaParser.DeclareTipoContext ctx) {
+    String simboloId = ctx.Ident().getText();
+    String tipo = (String)visit(ctx.tipo());
+
+    Lac.geradorBuffer.println(tipo + " " + simboloId + ";");
+
+    return null
+  }
+
+  @Override
+  public String visitDeclareProcedure(LaParser.DeclareProcedureContext ctx) {
+    String simboloId = (String)ctx.Ident().getText();
+    String parametros = (String)visit(ctx.lista_parametros());
+    String declaracao_local = (String)visit(ctx.declaracao_local());
+    String comando = (String)visit(ctx.comando());
+
+    Lac.geradorBuffer.println("void " + simboloId + " " + (String)ctx.LeftParen().getText() + parametros + (String)ctx.RightParen().getText() + " {");
+    tabCount++;
+    Lac.geradorBuffer.println(declaracao_local + comando);
+    tabCount--;
+    Lac.geradorBuffer.println(tab() + "}");
+
+    return null;
+  }
+
+  @Override
+  public String visitDeclareFunction(LaParser.DeclareProcedureContext ctx) {
+    String tipo = (String)visit(ctx.tipo_estendido());
+    String simboloId = (String)ctx.Ident().getText();
+    String parametros = (String)visit(ctx.lista_parametros());
+    String declaracao_local = (String)visit(ctx.declaracao_local());
+    String comando = (String)visit(ctx.comando());
+
+    Lac.geradorBuffer.println(tipo + " " + simboloId + " " + (String)ctx.LeftParen().getText() + parametros + (String)ctx.RightParen().getText() + " {");
+    tabCount++;
+    Lac.geradorBuffer.println(declaracao_local + comando);
+    tabCount--;
+    Lac.geradorBuffer.println(tab() + "}");
+
+    return null;
+  }
+
+  @Override
   public String visitDimensao(LaParser.DimensaoContext ctx) {
     Lac.geradorBuffer.print("["+ (String) visit(ctx.exp_aritmetica()) +"]");
     return null;
@@ -59,5 +124,102 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return null;
   }
 
-  
+  @Override
+  public String visitParametro(LaParser.ParametroContext ctx) {
+    String tipo = (String)visit(ctx.tipo_estendido());
+    String lista_identificador = (String)visit(ctx.lista_identificador());
+
+    Lac.geradorBuffer.println(tipo + lista_identificador);
+
+    return null;
+  }
+
+  private static String makeType(String type) {
+    switch (type) {
+        case "inteiro":
+            return = "%d";
+        case "real":
+            return = "%f";
+        case "logico":
+            return = "%d";
+        case "literal":
+            return = "%s";
+        default:
+            return = "";
+    }
+  }
+
+  @Override
+  public String visitCmdRead(LaParser.CmdReadContext ctx) {
+    Lac.geradorBuffer.println("scanf(\"" + + "\",&" + + ");");
+
+    return null;
+  }
+
+  @Override
+  public String visitCmdWrite(LaParser.CmdWriteContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdIf(LaParser.CmdIfContext ctx) {
+    String expressao = (String)visit(ctx.expressao());
+    String comando = (String)visit(ctx.comando());
+
+    Lac.geradorBuffer.println("if (" + expressao + ") {");
+    tabCount++;
+    Lac.geradorBuffer.println(comando);
+    tabCount--;
+    Lac.geradorBuffer.println(tab() + "}");
+
+    return null;
+  }
+
+  @Override
+  public String visitSenao(LaParser.SenaoContext ctx) {
+    String comando = (String)visit(ctx.comando());
+    
+    Lac.geradorBuffer.println("else {");
+    tabCount++;
+    Lac.geradorBuffer.println(comando);
+    tabCount--;
+    Lac.geradorBuffer.println(tab() + "}");
+
+    return null;
+  }
+
+  @Override
+  public String visitCmdCase(LaParser.CmdCaseContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdFor(LaParser.CmdForContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdWhile(LaParser.CmdWhileContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdDo(LaParser.CmdDoContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdAssign(LaParser.CmdAssignContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdCall(LaParser.CmdCallContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitCmdReturn(LaParser.CmdReturnContext ctx) {
+    return null;
+  }
 }

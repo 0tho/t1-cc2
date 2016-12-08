@@ -31,8 +31,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitDeclareConstante(LaParser.DeclareConstanteContext ctx) {
-    String simboloId = ctx.Ident().getText();
-    Lac.geradorBuffer.println("#define " + simboloId + (String) visit(ctx.valor_constante));
+    Lac.geradorBuffer.println("#define " + ctx.Ident().getText() + " " + visit(ctx.valor_constante()));
     return null;
   }
 
@@ -49,32 +48,31 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitTipo_basico(LaParser.DeclareTipo_basicoContext ctx) {
-        switch (tipo) {
-            case "inteiro":
-                tipo = "int";
-                break;
-            case "real":
-                tipo = "float";
-                break;
-            case "logico":
-                tipo = "int";
-                break;
-            case "literal":
-                tipo = "char";
-                break;
-            default:
-                tipo = "";
-        }
-
-      return tipo
+    switch (tipo) {
+        case "inteiro":
+            tipo = "int";
+            break;
+        case "real":
+            tipo = "float";
+            break;
+        case "logico":
+            tipo = "int";
+            break;
+        case "literal":
+            tipo = "char";
+            break;
+        default:
+            tipo = "";
     }
+
+    return tipo
+  }
 
   @Override
   public String visitDeclareTipo(LaParser.DeclareTipoContext ctx) {
-    String simboloId = ctx.Ident().getText();
     String tipo = (String)visit(ctx.tipo());
 
-    Lac.geradorBuffer.println(tipo + " " + simboloId + ";");
+    Lac.geradorBuffer.println(tab() + tipo + " " + ctx.Ident().getText() + ";");
 
     return null
   }
@@ -114,14 +112,17 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitDimensao(LaParser.DimensaoContext ctx) {
-    Lac.geradorBuffer.print("["+ (String) visit(ctx.exp_aritmetica()) +"]");
-    return null;
+    return "["+ ctx.exp_aritmetica().getText() +"]";
   }
 
   @Override
   public String visitTipoReferencia(LaParser.TipoReferenciaContext ctx) {
-    Lac.geradorBuffer.println((String) visitChildren(ctx) + (ctx.Pointer() != null ? "":"* ")  + ctx.tipo_basico_identificador().getText());
-    return null;
+    return ctx.tipo_basico_identificador().getText() + (ctx.Pointer() != null ? "":"*"));
+  }
+
+  @Override
+  public String visitTipoRegistro(LaParser.TipoRegistroContext ctx) {
+    return ;
   }
 
   @Override
@@ -132,6 +133,11 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tipo + lista_identificador);
 
     return null;
+  }
+
+  @Override
+  public String visitIdentificador(LaParser.IdentificadorContext ctx) {
+    return (ctx.Pointer() != null ? "":"*") + ctx.Ident.getText() + visit(ctx.lista_dimensao()) + ctx.sub_identificador().getText());
   }
 
   private static String makeType(String type) {
@@ -149,10 +155,42 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     }
   }
 
+  @Override 
+  public String visitValor_constante(LaParser.Valor_constanteContext ctx) {
+    if(ctx.String() != null){
+      return ctx.String().getText();
+    } else 
+      if(ctx.Int() != null) 
+      {
+        return ctx.Int().getText();
+      } else 
+        if(ctx.Real() != null) 
+        {
+          return ctx.Real().getText();
+        } else 
+          if(ctx.True() != null) 
+          {
+            return "true";
+          } else 
+            if(ctx.False() != null) 
+            {
+              return "false";
+            }
+  }
+
   @Override
   public String visitCmdRead(LaParser.CmdReadContext ctx) {
-    Lac.geradorBuffer.println("scanf(\"" + + "\",&" + + ");");
+    ArrayList<Simbolo> listaIdentificadores = (ArrayList<Simbolo>) visit(ctx.lista_identificador());
 
+    for( Simbolo s : listaIdentificadores ) {
+      if (s.getTipo().equals("int")) {
+        Lac.geradorBuffer.println("scanf(\"%d\",&" + s.getNome() + ");");
+      }
+      if (s.getTipo().equals("float")) {
+        Lac.geradorBuffer.println("scanf(\"%f\",&" + s.getNome() + ");");
+      }
+    }
+    
     return null;
   }
 
@@ -220,6 +258,17 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdReturn(LaParser.CmdReturnContext ctx) {
+    return null;
+  }
+
+  @Override
+  public String visitLista_variavel(LaParser.Lista_variavelContext ctx) { 
+    Lac.geradorBuffer.print(visit(ctx.tipo()) + " " + ctx.variavel_unica().getText());
+    for (LaParser.Mais_variaveisContext mais_var : ctx.mais_variaveis()) {
+      Simbolo simbolo = (Simbolo) visit(mais_var);
+      Lac.geradorBuffer.print(", " + simbolo.getNome());
+    }
+    Lac.geradorBuffer.print(";");
     return null;
   }
 }

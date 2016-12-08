@@ -48,6 +48,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitTipo_basico(LaParser.DeclareTipo_basicoContext ctx) {
+    String = (String) ctx.BasicTypes().getText();
         switch (tipo) {
             case "inteiro":
                 tipo = "int";
@@ -65,7 +66,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
                 tipo = "";
         }
 
-      return tipo
+      return tipo;
     }
 
   @Override
@@ -74,7 +75,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
     Lac.geradorBuffer.println(tab() + tipo + " " + ctx.Ident().getText() + ";");
 
-    return null
+    return null;
   }
 
   @Override
@@ -122,7 +123,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitTipoRegistro(LaParser.TipoRegistroContext ctx) {
-    return ;
+    return null;
   }
 
   @Override
@@ -138,21 +139,6 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   @Override
   public String visitIdentificador(LaParser.IdentificadorContext ctx) {
     return (ctx.Pointer() != null ? "":"*") + ctx.Ident.getText() + visit(ctx.lista_dimensao()) + ctx.sub_identificador().getText());
-  }
-
-  private static String makeType(String type) {
-    switch (type) {
-        case "inteiro":
-            return = "%d";
-        case "real":
-            return = "%f";
-        case "logico":
-            return = "%d";
-        case "literal":
-            return = "%s";
-        default:
-            return = "";
-    }
   }
 
   @Override 

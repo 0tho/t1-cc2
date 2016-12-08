@@ -47,7 +47,8 @@ parametro: Var? lista_identificador AssignType tipo_estendido;
 mais_parametro: Separator parametro;
 lista_parametros: parametro mais_parametro*;
 
-
+exp_aritmetica1: exp_aritmetica;
+exp_aritmetica2: exp_aritmetica;
 
 corpo: declaracao_local* comando*;
 comando
@@ -55,14 +56,13 @@ comando
   | Write LeftParen lista_expressao RightParen                               #cmdWrite
   | If expressao Then comando* senao? EndIf                                  #cmdIf
   | Case exp_aritmetica Be selecao senao? EndCase                            #cmdCase
-  | For Ident Assign exp_aritmetica Until exp_aritmetica Do comando* EndFor  #cmdFor
+  | For Ident Assign exp_aritmetica1 Until exp_aritmetica2 Do comando* EndFor  #cmdFor
   | While expressao Do comando* EndWhile                                     #cmdWhile
   | Do comando* Until expressao                                              #cmdDo
   | Pointer? Ident sub_identificador* lista_dimensao Assign expressao        #cmdAssign
   | Ident LeftParen lista_expressao? RightParen                              #cmdCall
   | Return expressao                                                         #cmdReturn
   ;
-
 
 senao: Else comando*;
 selecao: constantes AssignType comando* selecao*;

@@ -43,6 +43,19 @@ public class Simbolo {
     simbolos.add(simbolo);
   }
 
+  public void addSimbolos(ArrayList<Simbolo> simbolos) {
+    this.simbolos.addAll(simbolos);
+  }
+
+  public boolean temSimbolo(Simbolo simbolo) {
+    for( Simbolo  sim : simbolos ) {
+      if ( simbolo.getNome() == sim.getNome() ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public ArrayList<Simbolo> getSimbolos() {
     return simbolos;
   }

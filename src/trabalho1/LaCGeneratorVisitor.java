@@ -209,13 +209,20 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     tabCount--;
     Lac.geradorBuffer.println(tab() + "}");
 
+    if ((String)visit(ctx.senao())) {
+      Lac.geradorBuffer.println(tab() + " else {");
+      tabCount++;
+      Lac.geradorBuffer.println(tab() + (String)visit(ctx.senao()));
+      tabCount--;
+      Lac.geradorBuffer.println(tab() + "}");
+    }
+
     return null;
   }
 
   @Override
   public String visitSenao(LaParser.SenaoContext ctx) {
-
-    Lac.geradorBuffer.println("else {");
+    //Lac.geradorBuffer.println("else {");
     tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
       Lac.geradorBuffer.println(tab() + (String)visit(comando));
@@ -228,6 +235,35 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdCase(LaParser.CmdCaseContext ctx) {
+    Lac.geradorBuffer.println(tab() + "switch (" + (String)visit(ctx.exp_aritmetica() + ") {"));
+    tabCount++;
+    Lac.geradorBuffer.println(tab() + (String)visit(ctx.selecao()));
+    if ((String)visit(ctx.senao())) {
+      Lac.geradorBuffer.println(tab() + "default:");
+      tabCount++;
+      Lac.geradorBuffer.println(tab() + (String)visit(ctx.senao()));
+      tabCount--;
+    }
+    tabCount--;
+    Lac.geradorBuffer.println(tab() + "}");
+
+    return null;
+  }
+
+  @Override
+  public String visitSelecao(LaParser.SelecaoContext ctx) {
+    Lac.geradorBuffer.println(tab() + "case " + (String)visit(ctx.constantes() + ":"));
+    tabCount++;
+    for (LaParser.ComandoContext comando : ctx.comando()) {
+      Lac.geradorBuffer.println(tab() + (String)visit(comando));
+    }
+    Lac.geradorBuffer.println(tab() + "break;");
+    tabCount--;
+
+    if ((String)visit(ctx.selecao())) {
+      Lac.geradorBuffer.println(tab() + (String)visit(ctx.selecao()));
+    }
+
     return null;
   }
 
@@ -273,7 +309,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
       Lac.geradorBuffer.println(tab() + (String)visit(comando));
     }
     tabCount--;
-    Lac.geradorBuffer.println(tab() + "} (" + expressao + ");");
+    Lac.geradorBuffer.println(tab() + "} while (" + expressao + ");");
 
     return null;
   }

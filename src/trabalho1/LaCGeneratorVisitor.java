@@ -280,12 +280,12 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdAssign(LaParser.CmdAssignContext ctx) {
-    return null;
+    return (ctx.Pointer() != null ? "":"*") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + visit(ctx.sub_identificador()) + " = " + (String)visit(ctx.expressao());
   }
 
   @Override
   public String visitCmdCall(LaParser.CmdCallContext ctx) {
-    return null;
+    return ctx.Ident().getText() + "(" + visit(ctx.lista_expressao()) + ");";
   }
 
   @Override

@@ -41,8 +41,7 @@ public class Geradores {
 			finalCode.append(") {\n");
 		}
 
-		finalCode.append(code);
-				 .append("\n}");
+		finalCode.append(code).append("\n}");
 
 		return finalCode;
 	}
@@ -56,7 +55,7 @@ public class Geradores {
 						.append(Geradores.leaveEscope());
 		return finalCode;
 	}
-	
+
 	public static String doWhileLoop(String condition, String code) {
 		String finalCode = "do "
 						.append(Geradores.enterScope())
@@ -67,7 +66,7 @@ public class Geradores {
 						.append(");");
 		return finalCode;
 	}
-	
+
 	public static String forLoop(String countVariable, String begin, String end, String code) {
 		String finalCode = "for ("
 						.append(countVariable)
@@ -94,7 +93,7 @@ public class Geradores {
         if (pointer) {
         	finalCode.append("*");
         }
-        		 
+
         finalCode.append(" = ")
         		 .append(var);
 
@@ -111,19 +110,19 @@ public class Geradores {
     private static String makeTypeDecl(String type) {
         switch (type) {
             case "inteiro":
-                return = "int";
+                return "int";
             case "real":
-                return = "float";
+                return "float";
             case "logico":
-                return = "int";
+                return "int";
             case "literal":
-                return = "char";
+                return "char";
             default:
-                return = "";
+                return "";
         }
     }
 
-	public static String attribution(String var, String exp, pointer) {
+	public static String attribution(String var, String exp, Boolean pointer) {
         String finalCode = "";
 
         if (pointer) {
@@ -141,15 +140,15 @@ public class Geradores {
 	private static String makeType(String type) {
         switch (type) {
             case "inteiro":
-                return = "%d";
+                return "%d";
             case "real":
-                return = "%f";
+                return "%f";
             case "logico":
-                return = "%d";
+                return "%d";
             case "literal":
-                return = "%s";
+                return "%s";
             default:
-                return = "";
+                return "";
         }
     }
 
@@ -187,7 +186,7 @@ public class Geradores {
 		return finalCode;
 	}
 
-	public static String condition(String condition, String code, String elseCode), {
+	public static String condition(String condition, String code, String elseCode) {
 		String finalCode = "if (";
 		finalCode.append(condition)
 				 .append(")")

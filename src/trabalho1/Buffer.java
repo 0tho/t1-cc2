@@ -7,6 +7,10 @@ public class Buffer {
       texto = new StringBuffer();
     }
 
+    public void print(String txt) {
+        texto.append(txt);
+    }
+
     public void println(String txt) {
         texto.append(txt).append("\n");
     }

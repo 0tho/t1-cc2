@@ -168,11 +168,11 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
         } else 
           if(ctx.True() != null) 
           {
-            return "true";
+            return visit(ctx.True());
           } else 
             if(ctx.False() != null) 
             {
-              return "false";
+              return visit(ctx.False());
             }
   }
 
@@ -237,7 +237,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     String exp_aritmetica1 = (String)visit(ctx.exp_aritmetica1());
     String exp_aritmetica2 = (String)visit(ctx.exp_aritmetica2());
 
-    Lac.geradorBuffer.println(tab() + "for (" + simboloId "=" exp_aritmetica1 + "; " + simboloId + "<=" + exp_aritmetica2 + "; " + simboloId + "++) {");
+    Lac.geradorBuffer.println(tab() + "for (" + simboloId + " = " + exp_aritmetica1 + "; " + simboloId + " <= " + exp_aritmetica2 + "; " + simboloId + "++) {");
     tabCount++;
     for (ComandoContext comando : ctx.comando()) {
       Lac.geradorBuffer.println(tab() + (String)visit(comando));
@@ -290,11 +290,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdReturn(LaParser.CmdReturnContext ctx) {
-    String expressao = (String)visit(ctx.expressao());
-
-    Lac.geradorBuffer.println(tab() + "return" + expressao + ";");
-
-    return null;
+    return "return " + visit(ctx.expressao()) + ";";
   }
 
   @Override
@@ -308,4 +304,33 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return null;
   }
 
+  @Override 
+  public String visitParcelaLogicaTrue(LaParser.ParcelaLogicaTrueContext ctx) {
+    return "true";
+  }
+
+  @Override 
+  public String visitParcelaLogicaFalse(LaParser.ParcelaLogicaFalseContext ctx) {
+    return "false";
+  }
+
+  @Override
+  public String visitEqualRelacional(LaParser.EqualRelacionalContext ctx) {
+    return "==";
+  }
+
+  @Override
+  public String visitOp_nao(LaParser.Op_naoContext ctx) { 
+    return "!";
+  }
+
+  @Override 
+  public String visitOutros_fatores_logicos(LaParser.Outros_fatores_logicosContext ctx) {
+    return " && " + ctx.fator_logico().getText();
+  }
+
+  @Override
+  public String visitOutros_termos_logicos(LaParser.Outros_termos_logicosContext ctx) {
+    return " || " + ctx.termo_logico().getText();
+  }
 }

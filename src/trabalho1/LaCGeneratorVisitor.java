@@ -260,8 +260,8 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tab() + "break;");
     tabCount--;
 
-    if ((String)visit(ctx.selecao())) {
-      Lac.geradorBuffer.println(tab() + (String)visit(ctx.selecao()));
+    for (LaParser.SelecaoContext selecao : ctx.selecao()) {
+      Lac.geradorBuffer.println((String)visit(selecao));
     }
 
     return null;

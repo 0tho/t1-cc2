@@ -39,17 +39,6 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
-  public String visitDeclareVariavel(LaParser.DeclareVariavelContext ctx) {
-    ArrayList<Simbolo> simbolos = (ArrayList<Simbolo>) visit(ctx.lista_variavel());
-
-    for( Simbolo s: simbolos ) {
-      Lac.geradorBuffer.println(tab() + s.getTipo() + " " + s.getNome() + ";");
-    }
-
-    return null;
-  }
-
-  @Override
   public String visitTipo_basico(LaParser.Tipo_basicoContext ctx) {
     String tipo = (String) ctx.BasicTypes().getText();
         switch (tipo) {
@@ -86,8 +75,10 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     String simboloId = (String)ctx.Ident().getText();
 
     Lac.geradorBuffer.println(tab() + "void " + simboloId + " (");
-    for (LaParser.ParametroContext parametro : ctx.lista_parametros()) {
-      Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido() + " " + parametro.lista_identificador()));
+    LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
+    Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador());
+    for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
+      Lac.geradorBuffer.println((String)visit(mais_parametro.tipo_estendido() + " " + (String)visit(mais_parametro.lista_identificador())));
     }
     Lac.geradorBuffer.println(") {");
     tabCount++;
@@ -104,13 +95,15 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
-  public String visitDeclareFunction(LaParser.DeclareProcedureContext ctx) {
-    String tipo = (String)visit(ctx.tipo_estendido());
+  public String visitDeclareFunction(LaParser.DeclareFunctionContext ctx) {
+    String tipo = visit(ctx.tipo_estendido());
     String simboloId = (String)ctx.Ident().getText();
 
     Lac.geradorBuffer.println(tab() + tipo + " " + simboloId + " (");
-    for (LaParser.ParametroContext parametro : ctx.lista_parametros()) {
-      Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido() + " " + parametro.lista_identificador()));
+    LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
+    Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador());
+    for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
+      Lac.geradorBuffer.println((String)visit(mais_parametro.tipo_estendido()) + " " + (String)visit(mais_parametro.lista_identificador()));
     }
     Lac.geradorBuffer.println(") {");
     tabCount++;
@@ -133,7 +126,8 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitTipoReferencia(LaParser.TipoReferenciaContext ctx) {
-    return ctx.tipo_basico_identificador().getText() + (ctx.Pointer() != null ? "*" : "");
+
+    return ctx.tipo_estendido().tipo_basico_identificador().getText() + (ctx.tipo_estendido().Pointer() != null ? "*" : "");
   }
 
   @Override
@@ -143,7 +137,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitParametro(LaParser.ParametroContext ctx) {
-    String tipo = (String)visit(ctx.tipo_estendido());
+    String tipo = ctx.tipo_estendido().getText();
     String lista_identificador = (String)visit(ctx.lista_identificador());
 
     Lac.geradorBuffer.println(tipo + lista_identificador);
@@ -153,7 +147,11 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitIdentificador(LaParser.IdentificadorContext ctx) {
-    return (ctx.Pointer() != null ? "*" : "") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + visit(ctx.sub_identificador());
+    String sub_identificador = "";
+    for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
+      sub_identificador += visit(sub);
+    }
+    return (ctx.Pointer() != null ? "*" : "") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + sub_identificador;
   }
 
   @Override
@@ -196,7 +194,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     tabCount--;
     Lac.geradorBuffer.println(tab() + "}");
 
-    if ((String)visit(ctx.senao())) {
+    if (ctx.senao() != null) {
       Lac.geradorBuffer.println(tab() + " else {");
       tabCount++;
       Lac.geradorBuffer.println(tab() + (String)visit(ctx.senao()));
@@ -222,10 +220,10 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdCase(LaParser.CmdCaseContext ctx) {
-    Lac.geradorBuffer.println(tab() + "switch (" + (String)visit(ctx.exp_aritmetica() + ") {"));
+    Lac.geradorBuffer.println(tab() + "switch (" + ctx.exp_aritmetica().getText() + ") {");
     tabCount++;
     Lac.geradorBuffer.println(tab() + (String)visit(ctx.selecao()));
-    if ((String)visit(ctx.senao())) {
+    if (ctx.senao() != null) {
       Lac.geradorBuffer.println(tab() + "default:");
       tabCount++;
       Lac.geradorBuffer.println(tab() + (String)visit(ctx.senao()));
@@ -239,7 +237,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitSelecao(LaParser.SelecaoContext ctx) {
-    Lac.geradorBuffer.println(tab() + "case " + (String)visit(ctx.constantes() + ":"));
+    Lac.geradorBuffer.println(tab() + "case " + ctx.constantes().getText() + ":");
     tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
       Lac.geradorBuffer.println(tab() + (String)visit(comando));
@@ -322,7 +320,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitLista_variavel(LaParser.Lista_variavelContext ctx) {
-    Lac.geradorBuffer.print(visit(ctx.tipo()) + " " + ctx.variavel_unica().getText());
+    Lac.geradorBuffer.print(visit(ctx.tipo()) + " " + ctx.variavel_unica().getText() + ";");
     for (LaParser.Mais_variaveisContext mais_var : ctx.mais_variaveis()) {
       Lac.geradorBuffer.print(", " + mais_var.getText());
     }

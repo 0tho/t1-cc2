@@ -18,6 +18,7 @@ public class Lac {
 
     public static Buffer errorBuffer = new Buffer();
     public static Buffer geradorBuffer = new Buffer();
+    public static LaSemanticVisitor semantic;
 
     public static void main(String[] args) throws Exception {
       String arquivoDeEntrada = null;
@@ -51,14 +52,14 @@ public class Lac {
       LaErrorStrategy errorStrategy = new LaErrorStrategy();
       parser.setErrorHandler(errorStrategy);
 
-      LaSemanticVisitor visitor = new LaSemanticVisitor();
+      semantic = new LaSemanticVisitor();
       LaCGeneratorVisitor generator = new LaCGeneratorVisitor();
       ParseTree tree;
 
 
       try {
         tree = parser.programa();
-        visitor.visit(tree);
+        semantic.visit(tree);
         generator.visit(tree);
       }
       catch ( ParseCancellationException e ) {

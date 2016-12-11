@@ -78,7 +78,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
     Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador());
     for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
-      Lac.geradorBuffer.println((String)visit(mais_parametro.tipo_estendido() + " " + (String)visit(mais_parametro.lista_identificador())));
+      Lac.geradorBuffer.println((String)visit(mais_parametro.parametro().tipo_estendido()) + " " + mais_parametro.parametro().getText());
     }
     Lac.geradorBuffer.println(") {");
     tabCount++;
@@ -103,7 +103,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
     Lac.geradorBuffer.println((String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador());
     for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
-      Lac.geradorBuffer.println((String)visit(mais_parametro.tipo_estendido()) + " " + (String)visit(mais_parametro.lista_identificador()));
+      Lac.geradorBuffer.println((String)visit(mais_parametro.parametro().tipo_estendido()) + " " + mais_parametro.parametro().getText());
     }
     Lac.geradorBuffer.println(") {");
     tabCount++;
@@ -175,10 +175,6 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
             {
               return visit(ctx.False());
             }
-  }
-
-  @Override
-  public String visitCmdWrite(LaParser.CmdWriteContext ctx) {
     return null;
   }
 

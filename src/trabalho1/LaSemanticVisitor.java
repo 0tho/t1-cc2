@@ -113,6 +113,26 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
     return new Simbolo("ERRO", "ERRO", -1, LacClass.PARSER);
   }
 
+  public static ArrayList<Simbolo> pegaSimbolosDoTipo(LacClass classe) {
+    ArrayList<Simbolo> retorno = new ArrayList<Simbolo>();
+    int i;
+    for ( i=0; i<pilha.size(); i++) {
+      HashMap<String, Simbolo> tabela = pilha.get(i);
+
+      int j;
+      Simbolo[] simbolos = tabela.values().toArray(new Simbolo[0]);
+      for( j=0; j<simbolos.length; j++) {
+        Simbolo sim = simbolos[j];
+
+        if ( sim != null && sim.getClasse() == classe ) {
+          retorno.add(sim);
+        }
+      }
+    }
+
+    return retorno;
+  }
+
   @Override
   public Void visitPrograma(LaParser.ProgramaContext ctx) {
     tipos.put(LITERAL, new Tipo(LITERAL));
@@ -125,6 +145,7 @@ public class LaSemanticVisitor extends LaParserBaseVisitor<Object> {
     pilha.push( new HashMap<String, Simbolo>() );
 
     visitChildren(ctx);
+
     return null;
   }
 

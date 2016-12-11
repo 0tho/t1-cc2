@@ -2,6 +2,9 @@ package trabalho1;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import static trabalho1.LaSemanticVisitor.*;
 
 public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   public LaCGeneratorVisitor() {
@@ -25,6 +28,19 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tab() + "");
     Lac.geradorBuffer.println(tab() + "int main() {");
     tabCount++;
+    // Pega constantes
+    ArrayList<Simbolo> constantes = pegaSimbolosDoTipo( LacClass.CONSTANTE );
+    Lac.geradorBuffer.println(Arrays.toString(constantes.toArray()));
+    // Pega variaveis
+    ArrayList<Simbolo> variaveis = pegaSimbolosDoTipo( LacClass.VARIAVEL );
+    Lac.geradorBuffer.println(Arrays.toString(variaveis.toArray()));
+    // Pega procedimentos
+    ArrayList<Simbolo> procedimentos = pegaSimbolosDoTipo( LacClass.PROCEDIMENTO );
+    Lac.geradorBuffer.println(Arrays.toString(procedimentos.toArray()));
+    // Pega funcoes
+    ArrayList<Simbolo> funcoes = pegaSimbolosDoTipo( LacClass.FUNCAO );
+    Lac.geradorBuffer.println(Arrays.toString(funcoes.toArray()));
+
     visitChildren(ctx);
     Lac.geradorBuffer.println(tab() + "return 0;");
     tabCount--;
@@ -335,7 +351,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
-  public String visitOp_relacional(LaParser.Op_relacionalContext ctx) { 
+  public String visitOp_relacional(LaParser.Op_relacionalContext ctx) {
     if (ctx.Equal() != null) {
       return "==";
     }
@@ -359,13 +375,13 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return " || " + ctx.termo_logico().getText();
   }
 
-  @Override 
+  @Override
   public String visitParcelaUnarioVariavel(LaParser.ParcelaUnarioVariavelContext ctx) {
     String sub_identificador = "";
     for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
       sub_identificador += visit(sub);
     }
-    
+
     String lista_dimensao = (String)visit(ctx.lista_dimensao());
     return "*" + ctx.Ident().getText() + sub_identificador + lista_dimensao;
   }

@@ -75,4 +75,9 @@ public class Simbolo {
   public void setDimensoes( ArrayList<Integer> dimensoes ) {
     this.dimensoes = dimensoes;
   }
+
+  @Override
+  public String toString() {
+    return nome + " " + tipo + " " + linha + " " + classe;
+  }
 }

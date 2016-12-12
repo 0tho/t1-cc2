@@ -322,12 +322,9 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   @Override
   public String visitSenao(LaParser.SenaoContext ctx) {
     //Lac.geradorBuffer.println("else {");
-    tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
+      Lac.geradorBuffer.println(visit(comando));
     }
-    tabCount--;
-    Lac.geradorBuffer.println(tab() + "}");
 
     return null;
   }
@@ -397,7 +394,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdWhile(LaParser.CmdWhileContext ctx) {
-    String expressao = (String)visit(ctx.expressao());
+    String expressao = ctx.expressao().getText();
 
     Lac.geradorBuffer.println(tab() + "while (" + expressao + ") {");
     tabCount++;
@@ -412,7 +409,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdDo(LaParser.CmdDoContext ctx) {
-    String expressao = (String)visit(ctx.expressao());
+    String expressao = ctx.expressao().getText();
 
     Lac.geradorBuffer.println(tab() + "do {");
     tabCount++;

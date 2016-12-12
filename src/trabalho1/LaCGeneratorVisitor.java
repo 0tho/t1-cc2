@@ -185,6 +185,12 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
+  public String visitTipoReferencia(LaParser.TipoReferenciaContext ctx) {
+
+    return ctx.tipo_estendido().tipo_basico_identificador().getText() + (ctx.tipo_estendido().Pointer() != null ? "*" : "");
+  }
+
+  @Override
   public String visitTipoRegistro(LaParser.TipoRegistroContext ctx) {
     return null;
   }
@@ -290,7 +296,6 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
         tipos += "%" + getTipoParamStr(exp.getTipo());
       }
     }
-    //Lac.geradorBuffer.println(ct
 
     if (!cadeia.isEmpty()) {
       cadeia = cadeia.substring(0, cadeia.length() -1);
@@ -412,7 +417,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitCmdWhile(LaParser.CmdWhileContext ctx) {
-    String expressao = (String)visit(ctx.expressao());
+    String expressao = visit(ctx.expressao());
 
     Lac.geradorBuffer.println(tab() + "while (" + expressao + ") {");
     tabCount++;

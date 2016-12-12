@@ -60,7 +60,9 @@ public class Lac {
       try {
         tree = parser.programa();
         semantic.visit(tree);
-        generator.visit(tree);
+        if ( errorBuffer.isEmpty() ) {
+          generator.visit(tree);
+        }
       }
       catch ( ParseCancellationException e ) {
 

@@ -10,7 +10,7 @@ PACKAGE=trabalho1
 
 ANTLR=$(LIBRARIES)/antlr-4.5.3-complete.jar
 
-ARG1=corretorAutomatico/CorretorTrabalho1.jar
+ARG1=corretorAutomatico/CorretorTrabalho1-ori.jar
 ARG2="java -cp $(ANTLR):$(DIST) $(PACKAGE).Lac"
 ARG3=gcc
 ARG4=$(TEMP)
@@ -64,7 +64,7 @@ build: clean
 		-d $(DIST) \
 		-cp $(ANTLR) \
 		-sourcepath $(BUILD)/src \
-		$(BUILD)/**/*.java 2> log.txt
+		$(BUILD)/**/*.java
 	@echo - Build End -
 	@echo
 

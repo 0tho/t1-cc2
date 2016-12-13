@@ -29,7 +29,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     // Pega constantes
 
     for( LaParser.DeclaracaoContext declaracao : ctx.declaracao()) {
-      visit(declaracao.declaracao_local());
+      visitChildren(declaracao.declaracao_local());
     }
 
     Lac.geradorBuffer.println(tab() + "");
@@ -39,8 +39,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     ArrayList<Simbolo> variaveis = pegaSimbolosDoTipo( LacClass.VARIAVEL );
     //Lac.geradorBuffer.println(Arrays.toString(variaveis.toArray()));
     // Pega procedimentos
-    ArrayList<Simbolo> procedimentos = pegaSimbolosDoTipo( LacClass.PROCEDIMENTO );
-    //Lac.geradorBuffer.println(Arrays.toString(procedimentos.toArray()));
+
     // Pega funcoes
     ArrayList<Simbolo> funcoes = pegaSimbolosDoTipo( LacClass.FUNCAO );
     //Lac.geradorBuffer.println(Arrays.toString(funcoes.toArray()));
@@ -59,14 +58,23 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return null;
   }
 
-  @Override
+  /*@Override
   public String visitDeclareVariavel(LaParser.DeclareVariavelContext ctx) {
+
+    return visit;
+  }
+  */
+  @Override
+  public String visitLista_variavel(LaParser.Lista_variavelContext ctx) {
     String maisVariaveis = "";
-    for (LaParser.Mais_variaveisContext mais_var : ctx.lista_variavel().mais_variaveis()) {
-      maisVariaveis += ", " + mais_var.variavel_unica().getText();
+    for (LaParser.Mais_variaveisContext mais_var : ctx.mais_variaveis()) {
+      maisVariaveis += "," + mais_var.variavel_unica().getText();
     }
-    Lac.geradorBuffer.println(tab() + getTipoStr(visit(ctx.lista_variavel().tipo())) + " " + ctx.lista_variavel().variavel_unica().getText() + maisVariaveis + (getTipoStr(ctx.lista_variavel().tipo().getText()).equals("char") ? "[80]": "") + ";");
-    return null;
+    Lac.geradorBuffer.println(tab() + getTipoStr(visit(ctx.tipo())) +
+    " " + ctx.variavel_unica().getText() + maisVariaveis +
+    (getTipoStr(ctx.tipo().getText()).equals("char") ? "[80]": "") +
+     ";");
+     return "";
   }
 
   private String getTipoStr(String tipo) {
@@ -112,41 +120,49 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
 
   @Override
   public String visitDeclareTipo(LaParser.DeclareTipoContext ctx) {
-    String tipo = getTipoStr((String)visit(ctx.tipo()));
+    String tipo = visit(ctx.tipo());
 
-    Lac.geradorBuffer.println(tab() + tipo + " " + ctx.Ident().getText() + "\n");
+    Lac.geradorBuffer.println(tab() + tipo + " " + ctx.Ident().getText() + ";");
 
     return null;
   }
 
   @Override
   public String visitTipo_estendido(LaParser.Tipo_estendidoContext ctx) {
-     return getTipoStr(visit(ctx.tipo_basico_identificador())) ;
+    String pointer = "";
+    if(ctx.getText().contains("^"))
+    {
+      pointer = "*";
+    }
+    return getTipoStr(ctx.tipo_basico_identificador().getText()) + pointer;
   }
 
 
   @Override
   public String visitDeclareProcedure(LaParser.DeclareProcedureContext ctx) {
-    String simboloId = (String)ctx.Ident().getText();
+    ArrayList<Simbolo> procedimentos = pegaSimbolosDoTipo( LacClass.PROCEDIMENTO );
+    Lac.geradorBuffer.println(Arrays.toString(procedimentos.toArray()));
+    /*
+      String simboloId = (String)ctx.Ident().getText();
 
-    String declaration = tab() + "void " + simboloId + " (";
-    LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
-    declaration+= (String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador();
-    for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
-      declaration+= (String)visit(mais_parametro.parametro().tipo_estendido()) + " " + mais_parametro.parametro().getText();
-    }
-    declaration+= ") {";
-    Lac.geradorBuffer.println(declaration);
-    tabCount++;
-    for (LaParser.Declaracao_localContext declaracao_local : ctx.declaracao_local()) {
-      Lac.geradorBuffer.println(tab() + visit(declaracao_local));
-    }
-    for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
-    }
-    tabCount--;
-    Lac.geradorBuffer.println(tab() + "}");
-
+      String declaration = tab() + "void " + simboloId + " (";
+      LaParser.ParametroContext parametro = ctx.lista_parametros().parametro();
+      declaration+= (String)visit(parametro.tipo_estendido()) + " " + parametro.lista_identificador();
+      for (LaParser.Mais_parametroContext mais_parametro : ctx.lista_parametros().mais_parametro()) {
+        declaration+= (String)visit(mais_parametro.parametro().tipo_estendido()) + " " + mais_parametro.parametro().getText();
+      }
+      declaration+= ") {";
+      Lac.geradorBuffer.println(declaration);
+      tabCount++;
+      for (LaParser.Declaracao_localContext declaracao_local : ctx.declaracao_local()) {
+        Lac.geradorBuffer.println(tab() + visit(declaracao_local));
+      }
+      for (LaParser.ComandoContext comando : ctx.comando()) {
+        visit(comando);
+      }
+      tabCount--;
+      Lac.geradorBuffer.println(tab() + "}");
+  */
     return null;
   }
 
@@ -168,7 +184,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
       Lac.geradorBuffer.println(tab() + visit(declaracao_local));
     }
     for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
+      visit(comando);
     }
     tabCount--;
     Lac.geradorBuffer.println(tab() + "}");
@@ -184,15 +200,15 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return dimensao;
   }
 
-  @Override
-  public String visitTipoReferencia(LaParser.TipoReferenciaContext ctx) {
-
-    return ctx.tipo_estendido().tipo_basico_identificador().getText() + (ctx.tipo_estendido().Pointer() != null ? "*" : "");
-  }
 
   @Override
   public String visitTipoRegistro(LaParser.TipoRegistroContext ctx) {
-    return null;
+    Lac.geradorBuffer.println(tab() + "struct {");
+    tabCount++;
+    visitChildren(ctx.registro());
+    tabCount--;
+		Lac.geradorBuffer.print(tab() + "}");
+    return "";
   }
 
   @Override
@@ -209,9 +225,9 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   public String visitIdentificador(LaParser.IdentificadorContext ctx) {
     String sub_identificador = "";
     for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
-      sub_identificador += visit(sub);
+      sub_identificador += "." + visit(sub);
     }
-    return (ctx.Pointer() != null ? "*" : "") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + sub_identificador;
+    return ctx.Ident().getText() + visit(ctx.lista_dimensao()) + sub_identificador;
   }
 
   @Override
@@ -249,12 +265,6 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
       Lac.geradorBuffer.println(tab() + "scanf(\"%"+ getTipoParamStr(variable.getTipo()) + "\", &"+ variable.getNome() + ");");
     }
 
-    for( LaParser.Mais_identificadorContext id : ctx.lista_identificador().mais_identificador()) {
-      //Lac.geradorBuffer.println(id.identificador().Ident().getText());
-      variable = Lac.semantic.pegarSimbolo(id.getText());
-      //Lac.geradorBuffer.println(variable.getNome());
-    }
-    //Lac.geradorBuffer.println(variable.getNome());
     return null;
   }
 
@@ -265,49 +275,56 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     String cadeia = "";
     String tipos = "";
     String expressoes = "";
-    if (ctx.lista_expressao().expressao().outros_termos_logicos() == null) {
-      simbolo = Lac.semantic.pegarSimbolo(ctx.lista_expressao().expressao().getText());
-    } else {
-      for(LaParser.Outros_termos_logicosContext other : ctx.lista_expressao().expressao().outros_termos_logicos()) {
-        outrosTermos += visit(other);
+    List<String> lstString = new ArrayList<>();
+    if (Lac.semantic.pegarSimbolo(visit(ctx.lista_expressao().expressao())).getNome() != "ERRO") {
+      if (!visit(ctx.lista_expressao()).contains(",")) {
+        simbolo = Lac.semantic.pegarSimbolo(visit(ctx.lista_expressao().expressao()));
       }
     }
+
     if (simbolo == null) {
-      expressoes = visit(ctx.lista_expressao().expressao()) + outrosTermos;
-      tipos += "%" + getTipoParamStr(Lac.semantic.getType((ctx.lista_expressao().expressao())).getNome());
+      expressoes = visit(ctx.lista_expressao());
+      if (expressoes.contains(",")) {
+        for(String exp : expressoes.split(","))
+        {
+          if (Lac.semantic.pegarSimbolo(exp).getNome() == "ERRO") {
+            lstString.add(exp);
+          }
+          else {
+            Simbolo prt = Lac.semantic.pegarSimbolo(exp);
+            tipos = "\"%" + getTipoParamStr(prt.getTipo()) + "\"";
+            lstString.add(tipos + "," + prt.getNome());
+          }
+        }
+      }
+      else{
+        tipos = "\"%" + getTipoParamStr(Lac.semantic.getType(ctx.lista_expressao()).get(0).getNome()) + "\"";
+        lstString.add(tipos + "," +expressoes);
+      }
     }
     else {
-      if (simbolo.getNome() == "ERRO") {
-        cadeia = ctx.lista_expressao().expressao().getText();
-      }
-      else {
-        expressoes += simbolo.getNome();
-        tipos += "%" + getTipoParamStr(simbolo.getTipo());
-      }
+      tipos = "\"%" + getTipoParamStr(simbolo.getTipo()) + "\"";
+      lstString.add(tipos + ", " + simbolo.getNome());
     }
 
-    for( LaParser.Mais_expressaoContext mais_exp : ctx.lista_expressao().mais_expressao()) {
-      Simbolo exp = Lac.semantic.pegarSimbolo(mais_exp.expressao().getText());
-      if (exp.getNome() == "ERRO") {
-        cadeia = ctx.lista_expressao().expressao().getText();
-      }
-      else {
-        expressoes += "," + exp.getNome();
-        tipos += "%" + getTipoParamStr(exp.getTipo());
+    if (lstString.size() > 0) {
+      for(String printString : lstString)
+      {
+        Lac.geradorBuffer.println(tab() + "printf(" + printString + ");");
       }
     }
-
-    if (!cadeia.isEmpty()) {
-      cadeia = cadeia.substring(0, cadeia.length() -1);
-    }
-    tipos = "\"" + tipos;
-    if (!tipos.isEmpty()) {
-      tipos += "\",";
-    }
-    Lac.geradorBuffer.println(tab() + "printf(" + cadeia + tipos + expressoes + ");");
     return null;
   }
 
+  @Override
+  public String visitLista_expressao(LaParser.Lista_expressaoContext ctx) {
+    String mais_exp = "";
+    for(LaParser.Mais_expressaoContext mais : ctx.mais_expressao())
+    {
+      mais_exp += "," + visit(mais.expressao());
+    }
+    return visit(ctx.expressao()) + mais_exp;
+  }
   @Override
   public String visitCmdIf(LaParser.CmdIfContext ctx) {
     Lac.geradorBuffer.println(tab() + "if (" + visit(ctx.expressao()) + ") {");
@@ -407,7 +424,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tab() + "for (" + simboloId + " = " + exp_aritmetica1 + "; " + simboloId + " <= " + exp_aritmetica2 + "; " + simboloId + "++) {");
     tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
+      visit(comando);
     }
     tabCount--;
     Lac.geradorBuffer.println(tab() + "}");
@@ -422,7 +439,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tab() + "while (" + expressao + ") {");
     tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
+      visit(comando);
     }
     tabCount--;
     Lac.geradorBuffer.println(tab() + "}");
@@ -437,7 +454,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     Lac.geradorBuffer.println(tab() + "do {");
     tabCount++;
     for (LaParser.ComandoContext comando : ctx.comando()) {
-      Lac.geradorBuffer.println(tab() + visit(comando));
+      visit(comando);
     }
     tabCount--;
     Lac.geradorBuffer.println(tab() + "} while (" + expressao + ");");
@@ -449,26 +466,23 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   public String visitCmdAssign(LaParser.CmdAssignContext ctx) {
     String sub_identificador = "";
     for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
-      sub_identificador += visit(sub);
+      sub_identificador += "." + visit(sub);
     }
-    Lac.geradorBuffer.println(tab() + (ctx.Pointer() != null ? "*":"") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + sub_identificador + " = " + ctx.expressao().getText() + ";");
+    Lac.geradorBuffer.println(tab() + (ctx.Pointer() != null ? "*":"") + ctx.Ident().getText() + visit(ctx.lista_dimensao()) + sub_identificador + " = " + visit(ctx.expressao()) + ";");
     return null;
   }
 
   @Override
   public String visitExpressao(LaParser.ExpressaoContext ctx) {
-    //termo_logico outros_termos_logicos*
     String outrosTermos = "";
     for(LaParser.Outros_termos_logicosContext other : ctx.outros_termos_logicos()) {
       outrosTermos += visit(other);
     }
     return visit(ctx.termo_logico()) + outrosTermos;
-
   }
 
   @Override
   public String visitTermo_logico(LaParser.Termo_logicoContext ctx) {
-    //fator_logico outros_fatores_logicos*
     String outrosTermos = "";
     for(LaParser.Outros_fatores_logicosContext other : ctx.outros_fatores_logicos()) {
       outrosTermos += visit(other);
@@ -496,15 +510,7 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
     return "return " + visit(ctx.expressao()) + ";";
   }
 
-  @Override
-  public String visitLista_variavel(LaParser.Lista_variavelContext ctx) {
-    String variaveis = visit(ctx.tipo()) + " " + ctx.variavel_unica().getText();
-    for (LaParser.Mais_variaveisContext mais_var : ctx.mais_variaveis()) {
-      variaveis += ", " + mais_var.getText();
-    }
-    Lac.geradorBuffer.println(variaveis);
-    return null;
-  }
+
 
   @Override
   public String visitParcelaLogicaTrue(LaParser.ParcelaLogicaTrueContext ctx) {
@@ -517,9 +523,14 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   }
 
   @Override
-  public String visitOp_nao(LaParser.Op_naoContext ctx) {
-    return "!";
-  }
+  public String visitParcelaParcelaNaoUnario(LaParser.ParcelaParcelaNaoUnarioContext ctx) {
+     return ctx.getText();
+   }
+
+   @Override
+   public String visitParcelaNaoUnarioString(LaParser.ParcelaNaoUnarioStringContext ctx) {
+      return ctx.getText();
+    }
 
   @Override
   public String visitOutros_fatores_logicos(LaParser.Outros_fatores_logicosContext ctx) {
@@ -535,10 +546,15 @@ public class LaCGeneratorVisitor extends LaParserBaseVisitor<String> {
   public String visitParcelaUnarioVariavel(LaParser.ParcelaUnarioVariavelContext ctx) {
     String sub_identificador = "";
     for( LaParser.Sub_identificadorContext sub : ctx.sub_identificador()) {
-      sub_identificador += visit(sub);
+      sub_identificador += "." + visit(sub);
     }
 
     String lista_dimensao = visit(ctx.lista_dimensao());
     return (ctx.Pointer() != null ? "*" : "") + ctx.Ident().getText() + sub_identificador + lista_dimensao;
+  }
+
+  @Override
+  public String visitParcelaParcelaUnario(LaParser.ParcelaParcelaUnarioContext ctx) {
+    return (ctx.op_unario() != null ? ctx.op_unario().getText() : "") + visit(ctx.parcela_unario());
   }
 }
